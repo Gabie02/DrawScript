@@ -1,29 +1,51 @@
 grammar DrawScript;
 
 script: declaration_list WS* '---' WS* property_list WS* '---' WS* instruction_list EOF;
+declaration_list: (declaration WS*)*;
+declaration: CONST ':' expressionData;
 property_list: (property WS*)*;
+property: PROP ':'  (expression | point | dimension);
+
+/* Instruções */
 instruction_list: (instruction WS*)+;
-instruction: fill ;
+instruction: fill | for | ifElse | figure;
+
+    // Control Structures
+for: 'for' variable 'in' interval '{' instruction_list '}';
+ifElse: 'if' boolean '{' WS* instruction_list '}' ('else {' WS* instruction_list '}')? ;
+    // Figuras
+figure: rectangle | square | circle | elipse | line | border;
+rectangle: 'rectangle' point dimension;
+square: 'square' point expression;
+circle: 'circle' point expression;
+elipse: 'elipse' point expression;
+line: 'line' point expression;
+border: 'border' color;
+fill: 'fill' CONST;
+
+/* Expressions */
 expression: expression OPERATOR expression
             | CONST
-            | expressionData;
-// Control Structures
-for: 'for' expression 'in' interval '{' instruction_list '}';
-ifElse: 'if' expression '{' WS* instruction_list '}' ('else {' WS* instruction_list '}')? ;
-declaration: CONST ':' expressionData;
-declaration_list: (declaration WS*)*;
-fill: 'fill' CONST;
+            | expressionData
+            | variable
+            | constant
+            | '(' expression ')';
 expressionData: LITERAL
             | color;
-property: PROP ':'  (expression | point | dimension);
-color: LITERAL? '|' LITERAL '|' LITERAL?;
-dimension: expression '~' expression;
-interval: '[' LITERAL ',' LITERAL (']' | '[');
+constant: PROP;
+variable: PROP;
+    // Tipos de dados
+boolean: BOOL | (expression '=' expression);
 point: '('expression ',' expression')';
+dimension: expression '~' expression;
+interval: '[' expression ',' expression (']' | '[');
+color: LITERAL? '|' LITERAL '|' LITERAL?;
+
 
 PROP: [a-z]+;
 CONST: [A-Z]+;
 LITERAL: [0-9]+;
+BOOL: ('true' | 'false');
 OPERATOR: (TIMES | DIV | PLUS | MINUS | MOD);
 TIMES: '*';
 PLUS: '+';

@@ -1,14 +1,14 @@
 
 
-data class Script(val constants: List<Constant>, val properties: Property, val instructions: List<Instruction>) {
+data class Script(val declarations: List<Declaration>, val expressionDimension: Expression, val expressionBackground: Expression, val origin: Point, val instructions: List<Instruction>) {
 
     override fun toString(): String {
-        return "$constants---\n$properties---\n$instructions".filterNot { it == ',' || it == '[' || it == ']' }
+        return "$declarations---\ndimension: $expressionDimension\nbackground: $expressionBackground\n---\n$instructions".filterNot { it == ',' || it == '[' || it == ']' }
     }
 
     fun validate() {
         val initializedConstants = mutableSetOf<String>()
-        constants.forEach {
+        declarations.forEach {
             if(initializedConstants.contains(it.varId))
                 throw IllegalStateException("Variable ${it.varId} já existia")
             if(it.expression is Color) {
@@ -25,7 +25,7 @@ data class Script(val constants: List<Constant>, val properties: Property, val i
 }
 
 
-data class Constant(val varId: String, val expression: Expression) {
+data class Declaration(val varId: String, val expression: ExpressionData) {
 
     override fun toString(): String {
         return "$varId: $expression\n"
@@ -33,13 +33,6 @@ data class Constant(val varId: String, val expression: Expression) {
 
 }
 
-data class Property(val expressionDimension: Expression, val expressionBackground: Expression) {
-
-    override fun toString(): String {
-        return "dimension: $expressionDimension\nbackground: $expressionBackground\n"
-    }
-
-}
 
 sealed interface Instruction
 
@@ -56,25 +49,46 @@ data class IfElse(override val guard: Expression, override val sequence: List<In
 
 }
 
-data class Fill(val varId: String) : Instruction {
+data class Fill(val varId: String) : Instruction
 
-}
+
+
+
 
 sealed interface Figure : Instruction
+
+data class Point(val x : Expression, val y : Expression)
+
+data class Dimension(val w : Expression, val h : Expression)
+
+
+
+
+
+
 
 
 
 sealed interface Expression
 
-data class Literal(val value: Int) : Expression {
+data class ConstantRef(val varId: Int) : Expression {
+
+    override fun toString(): String {
+        return "$varId"
+    }
+}
+
+sealed interface ExpressionData : Expression
+
+data class Literal(val value: Int) : ExpressionData {
 
     override fun toString(): String {
         return "$value"
     }
 
 }
-// n tenho a certeza de onde colocar os tipos como a cor
-data class Color(val color: List<Int>) : Expression {
+
+data class Color(val color: List<Int>) : ExpressionData {
 
     override fun toString(): String {
         return "${color[0]}|${color[1]}|${color[2]}"
@@ -91,7 +105,7 @@ data class BinaryExpression(val left: Expression, val operator: Operator, val ri
 }
 
 enum class Operator {
-    PLUS, MINUS, TIMES, DIVISION, REMAINDER;
+    PLUS, MINUS, TIMES, DIVISION, MOD;
 }
 
 
@@ -100,19 +114,23 @@ fun main() {
         // CONSTANTS
         listOf(
             // N: 8
-            Constant("N", Literal(8)),
+            Declaration("N", Literal(8)),
             // SIDE: 40
-            Constant("SIDE", Literal(40)),
+            Declaration("SIDE", Color(listOf(0,255,20))),
             // MARGIN: 5
-            Constant("MARGIN", Literal(5)),
+            Declaration("MARGIN", Literal(5)),
             ),
 
         // PROPERTIES
-        // NOTA: acho q temos de trocar alguma coisa nas nossas classes pq n conseguimos acessar as constantes quando criamos uma BinaryExpression
-        Property( Literal(80), Literal(10) ),
+        Literal(80),
+        Literal(10),
+        Point(Literal(0),Literal(0)),
 
         // INSTRUCTIONS
         emptyList()
     )
+    script.validate()
     print(script)
 }
+
+

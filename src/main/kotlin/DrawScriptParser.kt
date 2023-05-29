@@ -1,9 +1,9 @@
 
 
-data class Script(val declarations: List<Declaration>, val expressionDimension: Dimension, val expressionBackground: Color, val origin: Point, val instructions: List<Instruction>) {
+data class Script(val declarations: List<Declaration>,val expressionDimension: Dimension, val expressionBackground: Color, val origin: Point, val instructions: List<Instruction>) {
 
     override fun toString(): String {
-        return "$declarations---\ndimension: $expressionDimension\nbackground: $expressionBackground\n---\n$instructions".filterNot { it == ',' || it == '[' || it == ']' }
+        return "$declarations---\ndimension: $expressionDimension\nbackground: $expressionBackground\norigin: $origin---\n$instructions".filterNot { it == ',' || it == '[' || it == ']' }
     }
 
     fun validate() {
@@ -32,6 +32,14 @@ data class Declaration(val varId: String, val expression: ExpressionData) {
 
 }
 
+data class Property(val prop: String, val value: Data) {
+
+    override fun toString(): String {
+        return "$prop: $value\n"
+    }
+
+}
+
 
 sealed interface Instruction
 
@@ -56,9 +64,9 @@ data class Fill(val varId: String) : Instruction
 
 sealed interface Figure : Instruction
 
-data class Point(val x : Expression, val y : Expression)
+data class Point(val x : Expression, val y : Expression) : Data
 
-data class Dimension(val w : Expression, val h : Expression)
+data class Dimension(val w : Expression, val h : Expression) : Data
 
 
 
@@ -79,7 +87,7 @@ data class ConstantRef(val varId: Int) : Expression {
 
 sealed interface ExpressionData : Expression
 
-data class Literal(val value: Int) : ExpressionData {
+data class Literal(val value: Int) : ExpressionData, Data {
 
     override fun toString(): String {
         return "$value"
@@ -87,7 +95,7 @@ data class Literal(val value: Int) : ExpressionData {
 
 }
 
-data class Color(val r: Int, val g: Int, val b: Int) : ExpressionData {
+data class Color(val r: Int, val g: Int, val b: Int) : ExpressionData, Data {
 
     override fun toString(): String {
         return "$r|$g|$b"
@@ -106,6 +114,8 @@ data class BinaryExpression(val left: Expression, val operator: Operator, val ri
 enum class Operator {
     PLUS, MINUS, TIMES, DIVISION, MOD;
 }
+
+sealed interface Data
 
 
 fun main() {
@@ -139,20 +149,82 @@ fun DrawScriptParser.ScriptContext.toAst(): Script {
     var background = Color(255,255,255)
     var point = Point(Literal(0),Literal(0))
 
-//    val propList = property_list().toAst()
+//TODO
+
+//    val propList : List<Property> = property_list().toAst()
 //    if(propList[0] != null)
 //        dimension = propList[0]
 //    if(propList[1] != null)
 //        background = propList[1]
 
-    return Script(declaration_list().toAst(), dimension, background , point, instruction_list().toAst())
+    return Script(declaration_list().toAst(), dimension, background, point,  instruction_list().toAst())
 }
 
 fun DrawScriptParser.Declaration_listContext.toAst() : List<Declaration> {
-    return emptyList()
+    return declaration().map { it.toAst() }
 }
 
-fun DrawScriptParser.Instruction_listContext.toAst() : List<Instruction> {
-    return emptyList()
+fun DrawScriptParser.DeclarationContext.toAst() : Declaration {
+    return Declaration(CONST().toString(), expressionData().toAst())
 }
+
+fun DrawScriptParser.Property_listContext.toAst() : List<Property> {
+    return property().map {it.toAst()}
+}
+
+fun DrawScriptParser.PropertyContext.toAst() : Property =
+    when {
+        point() != null -> Property("origin", point().toAst())
+        dimension() != null -> Property("dimension",dimension().toAst())
+        expression() != null -> Property("background", expression().expressionData().color().toAst())
+        else -> throw IllegalStateException("Invalid expression")
+    }
+
+
+//TODO
+fun DrawScriptParser.ExpressionContext.toAst() : Expression {
+
+}
+
+fun DrawScriptParser.ExpressionDataContext.toAst() : ExpressionData =
+    when {
+        LITERAL() != null -> Literal(text.toInt())
+        color() != null -> color().toAst()
+        else -> throw IllegalStateException("Invalid expression")
+    }
+
+fun DrawScriptParser.ColorContext.toAst() : Color {
+    return Color(LITERAL(0).text.toInt(),LITERAL(1).text.toInt() ,LITERAL(2).text.toInt())
+}
+
+fun DrawScriptParser.DimensionContext.toAst() : Dimension {
+    return Dimension(expression(0).toAst(), expression(1).toAst())
+}
+
+fun DrawScriptParser.PointContext.toAst() : Point {
+    return Point(expression(0).toAst(), expression(1).toAst())
+}
+
+
+
+
+fun DrawScriptParser.Instruction_listContext.toAst() : List<Instruction> {
+    return instruction().map { it.toAst() }
+}
+
+
+fun DrawScriptParser.InstructionContext.toAst() : Instruction =
+    when {
+        fill() != null -> fill().toAst()
+        for_() != null -> for_().toAst()
+        ifElse()!= null -> ifElse().toAst()
+        figure() != null -> figure().toAst()
+        else -> throw IllegalStateException("Invalid expression")
+    }
+
+
+
+
+
+
 

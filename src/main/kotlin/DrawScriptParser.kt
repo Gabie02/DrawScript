@@ -74,12 +74,17 @@ fun ExpressionContext.toAst() : Expression = when {
         when (expression().size) {
             1 -> expression()[0].toAst()
             else -> {
-                if (!expression()[0].children.filterIsInstance<TerminalNode>().isEmpty()
-                    && !expression()[1].children.filterIsInstance<TerminalNode>().isEmpty()) {
+                if (expression()[0].children.filterIsInstance<TerminalNode>().isNotEmpty()
+                    && expression()[1].children.filterIsInstance<TerminalNode>().isNotEmpty()
+                ) {
+                    val left = expression()[0].toAst()
+                    val right = expression()[1].toAst()
+                    if(left is Color || right is Color)
+                        throw IllegalArgumentException("Não se podem fazer contas com cores!")
                     BinaryExpression(
-                        expression()[0].toAst(),
+                        left,
                         getOperatorFor(children[1].text),
-                        expression()[1].toAst()
+                        right
                     )
                 }
                 Literal(expression()[0].text.toInt() + expression()[1].text.toInt())
@@ -133,9 +138,9 @@ fun Instruction_listContext.toAst() : List<Instruction> {
 fun InstructionContext.toAst() : Instruction =
     when {
         fill() != null -> fill().toAst()
-//        for_() != null -> for_().toAst()
+        for_() != null -> for_().toAst()
         ifElse()!= null -> ifElse().toAst()
-//        figure() != null -> figure().toAst()
+        figure() != null -> figure().toAst()
         else -> throw IllegalStateException("Invalid expression")
     }
 
@@ -149,19 +154,35 @@ fun BooleanContext.toAst() : Bool = when {
     else -> Bool(expression()[0].toAst() == expression()[1].toAst())
 }
 
+fun IntervalContext.toAst() : Interval = Interval(expression()[0].toAst(), expression()[1].toAst(), CLOSE_INTERVAL() == null)
+
 fun AlternativeContext.toAst(): List<Instruction> = instruction_list().toAst()
+
 fun FillContext.toAst() : Fill = Fill(text)
 
 
-//fun ForContext.toAst() : For {
-//
-//}
+fun ForContext.toAst() : ForLoop = ForLoop(variable().toAst(), interval().toAst(), instruction_list().toAst())
 
-//fun FigureContext.toAst() : Figure {
-//    if(rectangle() != null) {
-//        return
-//    }
-//}
+fun FigureContext.toAst() : Figure = when {
+    rectangle() != null -> rectangle().toAst()
+    square() != null -> square().toAst()
+    circle() != null -> circle().toAst()
+    elipse() != null -> elipse().toAst()
+    line() != null -> line().toAst()
+    else -> throw IllegalStateException("Invalid figure")
+}
+
+fun RectangleContext.toAst() : Rectangle = Rectangle(point().toAst(), dimension().toAst())
+
+fun SquareContext.toAst() : Rectangle = Rectangle(point().toAst(), Dimension(expression().toAst(), expression().toAst()))
+
+fun CircleContext.toAst() : Circle = Circle(point().toAst(), expression().toAst())
+
+fun ElipseContext.toAst() : Elipse = Elipse(point().toAst(), expression().toAst())
+
+fun LineContext.toAst() : Line = Line(point().toAst(), expression().toAst())
+
+fun BorderContext.toAst() : Border = Border(color().toAst())
 
 
 

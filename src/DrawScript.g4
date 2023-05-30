@@ -11,7 +11,8 @@ instruction_list: (instruction WS*)+;
 instruction: fill
             | for
             | ifElse
-            | figure;
+            | figure
+            | border;
 
     // Control Structures
 for: 'for' variable 'in' interval '{' instruction_list '}';
@@ -22,8 +23,7 @@ figure: rectangle
        | square
        | circle
        | elipse
-       | line
-       | border;
+       | line;
 rectangle: 'rectangle' point dimension;
 square: 'square' point expression;
 circle: 'circle' point expression;
@@ -47,13 +47,15 @@ variable: PROP;
 boolean: BOOL | (expression '=' expression);
 point: '('expression ',' expression')';
 dimension: expression '~' expression;
-interval: '[' expression ',' expression (']' | '[');
+interval: OPEN_INTERVAL expression ',' expression (OPEN_INTERVAL | CLOSE_INTERVAL);
 color: LITERAL? '|' LITERAL '|' LITERAL?;
 
 
 PROP: [a-z]+;
 CONST: [A-Z]+;
 LITERAL: [0-9]+;
+OPEN_INTERVAL: '[';
+CLOSE_INTERVAL: ']';
 BOOL: ('true' | 'false');
 OPERATOR: (TIMES | DIV | PLUS | MINUS | MOD);
 TIMES: '*';

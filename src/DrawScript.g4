@@ -8,13 +8,22 @@ property: PROP ':'  (expression | point | dimension);
 
 /* Instruções */
 instruction_list: (instruction WS*)+;
-instruction: fill | for | ifElse | figure;
+instruction: fill
+            | for
+            | ifElse
+            | figure;
 
     // Control Structures
 for: 'for' variable 'in' interval '{' instruction_list '}';
-ifElse: 'if' boolean '{' WS* instruction_list '}' ('else {' WS* instruction_list '}')? ;
+ifElse: 'if' boolean '{' WS* instruction_list '}' alternative?;
+alternative: 'else {' WS* instruction_list '}';
     // Figuras
-figure: rectangle | square | circle | elipse | line | border;
+figure: rectangle
+       | square
+       | circle
+       | elipse
+       | line
+       | border;
 rectangle: 'rectangle' point dimension;
 square: 'square' point expression;
 circle: 'circle' point expression;

@@ -1,122 +1,6 @@
-
-
-data class Script(val declarations: List<Declaration>,val expressionDimension: Dimension, val expressionBackground: Color, val origin: Point, val instructions: List<Instruction>) {
-
-    override fun toString(): String {
-        return "$declarations---\ndimension: $expressionDimension\nbackground: $expressionBackground\norigin: $origin---\n$instructions".filterNot { it == ',' || it == '[' || it == ']' }
-    }
-
-    fun validate() {
-        val initializedConstants = mutableSetOf<String>()
-        declarations.forEach {
-            if(initializedConstants.contains(it.varId))
-                throw IllegalStateException("Variable ${it.varId} já existia")
-            if(it.expression is Color) {
-                    if(it.expression.r < 0 || it.expression.r > 255 || it.expression.g < 0 || it.expression.g > 255 || it.expression.b < 0 || it.expression.b > 255)
-                        throw IllegalArgumentException("Valor $it não é válido para o componente de cor")
-
-            }
-            initializedConstants.add(it.varId)
-        }}
-
-
-
-}
-
-
-data class Declaration(val varId: String, val expression: ExpressionData) {
-
-    override fun toString(): String {
-        return "$varId: $expression\n"
-    }
-
-}
-
-data class Property(val prop: String, val value: Data) {
-
-    override fun toString(): String {
-        return "$prop: $value\n"
-    }
-
-}
-
-
-sealed interface Instruction
-
-sealed interface ControlStructure : Instruction {
-    val guard: Expression
-    val sequence: List<Instruction>
-}
-
-data class IfElse(override val guard: Expression, override val sequence: List<Instruction>, val alternative: List<Instruction>) : ControlStructure {
-
-    override fun toString(): String {
-        return "IfElse(guard=$guard, sequence=$sequence, alternative=$alternative)"
-    }
-
-}
-
-data class Fill(val varId: String) : Instruction
-
-
-
-
-
-sealed interface Figure : Instruction
-
-data class Point(val x : Expression, val y : Expression) : Data
-
-data class Dimension(val w : Expression, val h : Expression) : Data
-
-
-
-
-
-
-
-
-
-sealed interface Expression
-
-data class ConstantRef(val varId: Int) : Expression {
-
-    override fun toString(): String {
-        return "$varId"
-    }
-}
-
-sealed interface ExpressionData : Expression
-
-data class Literal(val value: Int) : ExpressionData, Data {
-
-    override fun toString(): String {
-        return "$value"
-    }
-
-}
-
-data class Color(val r: Int, val g: Int, val b: Int) : ExpressionData, Data {
-
-    override fun toString(): String {
-        return "$r|$g|$b"
-    }
-}
-
-
-data class BinaryExpression(val left: Expression, val operator: Operator, val right: Expression) : Expression {
-
-    override fun toString(): String {
-        return "$left $operator $right"
-    }
-
-}
-
-enum class Operator {
-    PLUS, MINUS, TIMES, DIVISION, MOD;
-}
-
-sealed interface Data
-
+import DrawScriptParser.*
+import org.antlr.v4.runtime.tree.TerminalNode
+import javax.swing.JComponent
 
 fun main() {
 //    val script = Script(
@@ -144,7 +28,7 @@ fun main() {
 
 
 
-fun DrawScriptParser.ScriptContext.toAst(): Script {
+fun ScriptContext.toAst(): Script {
     var dimension  = Dimension(Literal(40),Literal(40))
     var background = Color(255,255,255)
     var point = Point(Literal(0),Literal(0))
@@ -160,19 +44,19 @@ fun DrawScriptParser.ScriptContext.toAst(): Script {
     return Script(declaration_list().toAst(), dimension, background, point,  instruction_list().toAst())
 }
 
-fun DrawScriptParser.Declaration_listContext.toAst() : List<Declaration> {
+fun Declaration_listContext.toAst() : List<Declaration> {
     return declaration().map { it.toAst() }
 }
 
-fun DrawScriptParser.DeclarationContext.toAst() : Declaration {
+fun DeclarationContext.toAst() : Declaration {
     return Declaration(CONST().toString(), expressionData().toAst())
 }
 
-fun DrawScriptParser.Property_listContext.toAst() : List<Property> {
+fun Property_listContext.toAst() : List<Property> {
     return property().map {it.toAst()}
 }
 
-fun DrawScriptParser.PropertyContext.toAst() : Property =
+fun PropertyContext.toAst() : Property =
     when {
         point() != null -> Property("origin", point().toAst())
         dimension() != null -> Property("dimension",dimension().toAst())
@@ -181,48 +65,103 @@ fun DrawScriptParser.PropertyContext.toAst() : Property =
     }
 
 
-//TODO
-fun DrawScriptParser.ExpressionContext.toAst() : Expression {
+fun ExpressionContext.toAst() : Expression = when {
+    expressionData() != null-> expressionData().toAst()
+    constant() != null-> constant().toAst()
+    variable() != null -> variable().toAst()
+    CONST() != null -> Literal(CONST)
+    expression() != null -> {
+        when (expression().size) {
+            1 -> expression()[0].toAst()
+            else -> {
+                if (!expression()[0].children.filterIsInstance<TerminalNode>().isEmpty()
+                    && !expression()[1].children.filterIsInstance<TerminalNode>().isEmpty()) {
+                    BinaryExpression(
+                        expression()[0].toAst(),
+                        getOperatorFor(children[1].text),
+                        expression()[1].toAst()
+                    )
+                }
+                Literal(expression()[0].text.toInt() + expression()[1].text.toInt())
 
+            }
+        }
+    }
+    else -> toAst()
 }
 
-fun DrawScriptParser.ExpressionDataContext.toAst() : ExpressionData =
+fun getOperatorFor(text: String?): Operator = when (text) {
+    "+" -> Operator.PLUS
+    "-" -> Operator.MINUS
+    "*" -> Operator.TIMES
+    "/" -> Operator.DIVISION
+    else -> Operator.MOD
+}
+
+
+fun ConstantContext.toAst() : ConstantRef = ConstantRef(PROP().text)
+
+fun VariableContext.toAst() : Variable = Variable(PROP().text)
+
+fun ExpressionDataContext.toAst() : ExpressionData =
     when {
         LITERAL() != null -> Literal(text.toInt())
         color() != null -> color().toAst()
         else -> throw IllegalStateException("Invalid expression")
     }
 
-fun DrawScriptParser.ColorContext.toAst() : Color {
+fun ColorContext.toAst() : Color {
     return Color(LITERAL(0).text.toInt(),LITERAL(1).text.toInt() ,LITERAL(2).text.toInt())
 }
 
-fun DrawScriptParser.DimensionContext.toAst() : Dimension {
+fun DimensionContext.toAst() : Dimension {
     return Dimension(expression(0).toAst(), expression(1).toAst())
 }
 
-fun DrawScriptParser.PointContext.toAst() : Point {
+fun PointContext.toAst() : Point {
     return Point(expression(0).toAst(), expression(1).toAst())
 }
 
 
 
 
-fun DrawScriptParser.Instruction_listContext.toAst() : List<Instruction> {
+fun Instruction_listContext.toAst() : List<Instruction> {
     return instruction().map { it.toAst() }
 }
 
 
-fun DrawScriptParser.InstructionContext.toAst() : Instruction =
+fun InstructionContext.toAst() : Instruction =
     when {
         fill() != null -> fill().toAst()
-        for_() != null -> for_().toAst()
+//        for_() != null -> for_().toAst()
         ifElse()!= null -> ifElse().toAst()
-        figure() != null -> figure().toAst()
+//        figure() != null -> figure().toAst()
         else -> throw IllegalStateException("Invalid expression")
     }
 
+fun IfElseContext.toAst() : IfElse = when {
+    alternative() != null -> IfElse(boolean_().toAst(), instruction_list().toAst(), alternative().toAst())
+    else -> IfElse(boolean_().toAst(), instruction_list().toAst(), emptyList())
+}
 
+fun BooleanContext.toAst() : Bool = when {
+    BOOL() != null -> Bool(text.toBoolean())
+    else -> Bool(expression()[0].toAst() == expression()[1].toAst())
+}
+
+fun AlternativeContext.toAst(): List<Instruction> = instruction_list().toAst()
+fun FillContext.toAst() : Fill = Fill(text)
+
+
+//fun ForContext.toAst() : For {
+//
+//}
+
+//fun FigureContext.toAst() : Figure {
+//    if(rectangle() != null) {
+//        return
+//    }
+//}
 
 
 

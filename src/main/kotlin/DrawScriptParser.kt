@@ -1,29 +1,63 @@
 import DrawScriptParser.*
+import org.antlr.v4.runtime.CharStreams
+import org.antlr.v4.runtime.CommonTokenStream
 import org.antlr.v4.runtime.tree.TerminalNode
-import javax.swing.JComponent
+
 
 fun main() {
-//    val script = Script(
-        // CONSTANTS
-//        listOf(
-//            // N: 8
-//            Declaration("N", Literal(8)),
-//            // SIDE: 40
-//            Declaration("SIDE", Color(0,255,20)),
-//            // MARGIN: 5
-//            Declaration("MARGIN", Literal(5)),
-//            ),
-//
-//        // PROPERTIES
-//        //Literal(80),
-//        Literal(10),
-//        Point(Literal(0),Literal(0)),
-//
-//        // INSTRUCTIONS
-//        emptyList()
-//    )
-//    script.validate()
-//    print(script)
+    val script = Script(
+//         CONSTANTS
+        listOf(
+            // N: 8
+            Declaration("N", Literal(8)),
+            // SIDE: 40
+            Declaration("SIDE", Color(0,255,20)),
+            // MARGIN: 5
+            Declaration("MARGIN", Literal(5)),
+            // WHITE: 255|255|255
+            Declaration("WHITE", Color(255,255,255))
+            ),
+
+        // PROPERTIES
+        Dimension(Literal(40),Literal(40)),
+        Color(200,200,200),
+        Point(Literal(1),Literal(1)),
+
+        // INSTRUCTIONS
+       listOf(Fill("WHITE"))
+    )
+    script.validate()
+    //print(script)
+    testToAst("N: 8\n"
+                + "SIDE: 0|255|20\n"
+                + "MARGIN: 5\n"
+                + "WHITE: 255|255|255\n"
+                + "---\n"
+                + "dimension: 40 ~ 40\n"
+                + "background: 200|200|200\n"
+                + "origin: (1, 1)\n"
+                + "---"
+                + "fill WHITE"
+                , script)
+}
+
+fun testToAst(input: String, expectedScript: Script) {
+    val lexer = DrawScriptLexer(CharStreams.fromString(input))
+    val parser = DrawScriptParser(CommonTokenStream(lexer))
+
+    val actualScript = parser.script().toAst()
+
+    if (actualScript == expectedScript) {
+        println("Test passed!")
+        println("Expected:\n$expectedScript")
+        println("*******************************")
+        println("Actual:\n$actualScript")
+    } else {
+        println("Test failed!")
+        println("Expected:\n$expectedScript")
+        println("*******************************")
+        println("Actual:\n$actualScript")
+    }
 }
 
 
@@ -31,17 +65,21 @@ fun main() {
 fun ScriptContext.toAst(): Script {
     var dimension  = Dimension(Literal(40),Literal(40))
     var background = Color(255,255,255)
-    var point = Point(Literal(0),Literal(0))
+    var origin = Point(Literal(0),Literal(0))
 
 //TODO
 
-//    val propList : List<Property> = property_list().toAst()
-//    if(propList[0] != null)
-//        dimension = propList[0]
-//    if(propList[1] != null)
-//        background = propList[1]
+    val propList : List<Property> = property_list().toAst()
+    propList.forEach {
+        if(it.prop == "dimension")
+            dimension = it.value as Dimension
+        if(it.prop == "background")
+            background = it.value as Color
+        if(it.prop == "origin")
+            origin = it.value as Point
+    }
 
-    return Script(declaration_list().toAst(), dimension, background, point,  instruction_list().toAst())
+    return Script(declaration_list().toAst(), dimension, background, origin,  instruction_list().toAst())
 }
 
 fun Declaration_listContext.toAst() : List<Declaration> {

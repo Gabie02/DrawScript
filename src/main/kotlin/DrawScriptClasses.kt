@@ -1,7 +1,7 @@
 import kotlin.reflect.KClass
 
 class SequenceIterator(private val sequence: List<Instruction>) {
-    private var next = 0;
+    private var next = 0
     val hasNext: Boolean get() = next < sequence.size
 
     fun next(): Instruction {
@@ -58,8 +58,8 @@ data class Script(
         return ("$declarations---" +
                 "\ndimension: $expressionDimension" +
                 "\nbackground: $expressionBackground" +
-                "\norigin: $origin---\n$instructions")
-            .filterNot { it == ',' || it == '[' || it == ']' }
+                "\norigin: $origin\n---\n$instructions")
+            .filterNot { it == '[' || it == ']' }
     }
 
     fun validate() {
@@ -67,10 +67,12 @@ data class Script(
 
         //Verificar se uma constante não é inicializada mais do que uma vez
         declarations.forEachIndexed { line, it ->
-            if (initializedConstants.contains(it.varId))
-                errors.add(ConstError(it.varId))
-            else
-                initializedConstants[it.varId] = it.expression
+            if(initializedConstants != null) {
+                if (initializedConstants.contains(it.varId))
+                    errors.add(ConstError(it.varId))
+                else
+                    initializedConstants[it.varId] = it.expression
+            }
         }
 
         //Verificar se o background é inicializado com uma cor
@@ -98,11 +100,13 @@ data class Script(
                     validateInstructions(it.alternative)
                 }
                 is Fill -> {
-                    if(initializedConstants.contains(it.varId)) {
-                        if(initializedConstants[it.varId] !is Color)
-                            errors.add(TypeError(initializedConstants[it.varId]!!::class, Color::class))
-                    } else {
-                        errors.add(ConstError(it.varId))
+                    if(initializedConstants != null) {
+                        if (initializedConstants.contains(it.varId)) {
+                            if (initializedConstants[it.varId] !is Color)
+                                errors.add(TypeError(initializedConstants[it.varId]!!::class, Color::class))
+                        } else {
+                            errors.add(ConstError(it.varId))
+                        }
                     }
 
                 }

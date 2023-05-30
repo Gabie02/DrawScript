@@ -1,5 +1,4 @@
-import java.lang.Error
-import java.lang.reflect.Type
+import kotlin.reflect.KClass
 
 class SequenceIterator(private val sequence: List<Instruction>) {
     private var next = 0;
@@ -21,10 +20,10 @@ class SequenceStack {
 }
 
 sealed interface ScriptError
-data class ConstError(val constId: String, val line: Int) : ScriptError {
+data class ConstError(val constId: String) : ScriptError {
 
     override fun toString(): String {
-        return "Constant $constId is initialized again at line $line"
+        return "Error with $constId initialization"
     }
 }
 
@@ -35,10 +34,10 @@ data class ConstTypeError(val constId: String) : ScriptError {
     }
 }
 
-data class TypeError(val actual: Any, val expected: Any) : ScriptError {
+data class TypeError(val actual: KClass<out Data>, val expected: KClass<out Data>) : ScriptError {
 
     override fun toString(): String {
-        return "Expected Type $expected and got $expected"
+        return "Expected Type $expected but got $actual"
     }
 }
 
@@ -46,10 +45,14 @@ data class Script(
     val declarations: List<Declaration>, val expressionDimension: Dimension,
     val expressionBackground: Expression, val origin: Point, val instructions: List<Instruction>
 ) {
+    init {
+        validate()
+    }
 
-    private var initializedConstants = mutableMapOf<String, ExpressionData>()
-    private var backgroundColor: Color = Color(255, 255, 255) // Valor inicial
-    private var canvasDimensions: Dimension = expressionDimension
+    var initializedConstants = mutableMapOf<String, ExpressionData>()
+    var backgroundColor: Color = Color(255, 255, 255) // Valor inicial
+    var canvasDimensions: Dimension = expressionDimension
+    var errors = mutableListOf<ScriptError>()
 
     override fun toString(): String {
         return ("$declarations---" +
@@ -59,14 +62,13 @@ data class Script(
             .filterNot { it == ',' || it == '[' || it == ']' }
     }
 
-    fun validate(): List<ScriptError> {
-        val errors = mutableListOf<ScriptError>()
+    fun validate() {
         /* Validação da cor passou para a própria classe color */
 
         //Verificar se uma constante não é inicializada mais do que uma vez
         declarations.forEachIndexed { line, it ->
             if (initializedConstants.contains(it.varId))
-                errors.add(ConstError(it.varId, line + 1))
+                errors.add(ConstError(it.varId))
             else
                 initializedConstants[it.varId] = it.expression
         }
@@ -80,51 +82,68 @@ data class Script(
             backgroundColor = expressionBackground
 
         //Verificar se a dimension não tem uma expressão inválida
-        errors.addAll(validateExpression(expressionDimension.w))
-        errors.addAll(validateExpression(expressionDimension.h))
+        validateExpression(expressionDimension.w)
+        validateExpression(expressionDimension.h)
 
         //Validar instruções
+        validateInstructions(instructions)
+    }
+
+    fun validateInstructions(instructions: List<Instruction>) {
         instructions.forEachIndexed { line, it ->
             when (it) {
                 is Figure -> errors.addAll(validateFigure(it))
-                is Border -> TODO()
-                is IfElse -> TODO()
-                is Fill -> TODO()
-                is ForLoop -> TODO()
+                is IfElse -> {
+                    validateInstructions(it.sequence)
+                    validateInstructions(it.alternative)
+                }
+                is Fill -> {
+                    if(initializedConstants.contains(it.varId)) {
+                        if(initializedConstants[it.varId] !is Color)
+                            errors.add(TypeError(initializedConstants[it.varId]!!::class, Color::class))
+                    } else {
+                        errors.add(ConstError(it.varId))
+                    }
+
+                }
+                is ForLoop -> validateInstructions(it.sequence)
+                else -> throw IllegalArgumentException("Instrução não reconhecida $it")
             }
         }
-        return errors
     }
-
-    fun validateExpression(expression: Expression): List<ScriptError> {
-        val errors = mutableListOf<ScriptError>()
+    fun validateExpression(expression: Expression) {
         fun validateSimpleExpression(simpleExp: Expression) {
             if (simpleExp is ConstantRef && initializedConstants[simpleExp.constId] is Color)
                 errors.add(ConstTypeError(simpleExp.constId))
+            if (simpleExp is Color)
+                errors.add(TypeError(Color::class, Literal::class))
         }
 
         fun validateBinaryExpression(binaryExp: BinaryExpression) {
-            errors.addAll(validateExpression(binaryExp.left))
-            errors.addAll(validateExpression(binaryExp.right))
+            validateExpression(binaryExp.left)
+            validateExpression(binaryExp.right)
         }
         when (expression) {
             is BinaryExpression -> validateBinaryExpression(expression)
             else -> validateSimpleExpression(expression)
         }
-        return errors
     }
 
     fun validateFigure(figure: Figure): List<ScriptError> {
         val errors = mutableListOf<ScriptError>()
+        validateExpression(figure.origin.y)
+        validateExpression(figure.origin.x)
         when (figure) {
             is Rectangle -> {
-                errors.addAll(validateExpression(figure.dim.w))
-                errors.addAll(validateExpression(figure.dim.h))
+                validateExpression(figure.dim.w)
+                validateExpression(figure.dim.h)
             }
-            is Circle -> TODO()
+
+            is Circle -> validateExpression(figure.radius)
             is Elipse -> TODO()
-            is Line -> TODO()
+            is Line -> validateExpression(figure.width)
         }
+        return errors
     }
 
 }
@@ -178,6 +197,9 @@ data class ForLoop(val incrementVar: Variable, val interval: Interval, val seque
 data class Interval(val start: Expression, val end: Expression, val exclusive: Boolean) {
 
     override fun toString(): String {
+
+        if (exclusive)
+            return "[$start, $end["
         return "[$start, $end]"
     }
 }
@@ -272,9 +294,9 @@ enum class Operator {
     PLUS, MINUS, TIMES, DIVISION, MOD;
 }
 
-sealed interface ExpressionData : Expression
+sealed interface ExpressionData : Expression, Data
 
-data class Literal(val value: Int) : ExpressionData, Data {
+data class Literal(val value: Int) : ExpressionData {
 
     override fun toString(): String {
         return "$value"
@@ -282,7 +304,7 @@ data class Literal(val value: Int) : ExpressionData, Data {
 
 }
 
-data class Color(val r: Int, val g: Int, val b: Int) : ExpressionData, Data {
+data class Color(val r: Int, val g: Int, val b: Int) : ExpressionData {
     init {
         require(r in 0..255 && g in 0..255 && b in 0..255)
     }

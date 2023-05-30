@@ -44,7 +44,7 @@ expressionData: LITERAL
 constant: PROP;
 variable: PROP;
     // Tipos de dados
-boolean: BOOL | (expression '=' expression);
+boolean: (expression '=' expression);
 point: '('expression ',' expression')';
 dimension: expression '~' expression;
 interval: OPEN_INTERVAL expression ',' expression (OPEN_INTERVAL | CLOSE_INTERVAL);

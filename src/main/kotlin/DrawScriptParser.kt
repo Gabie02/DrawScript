@@ -26,7 +26,6 @@ fun main() {
         // INSTRUCTIONS
        listOf(Fill("WHITE"))
     )
-    script.validate()
     //print(script)
     testToAst("N: 8\n"
                 + "SIDE: 0|255|20\n"
@@ -47,17 +46,14 @@ fun testToAst(input: String, expectedScript: Script) {
 
     val actualScript = parser.script().toAst()
 
-    if (actualScript == expectedScript) {
+    if (actualScript == expectedScript)
         println("Test passed!")
-        println("Expected:\n$expectedScript")
-        println("*******************************")
-        println("Actual:\n$actualScript")
-    } else {
+    else
         println("Test failed!")
-        println("Expected:\n$expectedScript")
-        println("*******************************")
-        println("Actual:\n$actualScript")
-    }
+    println("Expected:\n$expectedScript")
+    println("*******************************")
+    println("Actual:\n$actualScript")
+
 }
 
 
@@ -179,7 +175,8 @@ fun InstructionContext.toAst() : Instruction =
         for_() != null -> for_().toAst()
         ifElse()!= null -> ifElse().toAst()
         figure() != null -> figure().toAst()
-        else -> throw IllegalStateException("Invalid expression")
+        border() != null -> border().toAst()
+        else -> throw IllegalArgumentException("Erro ao traduzir a instrução na AST")
     }
 
 fun IfElseContext.toAst() : IfElse = when {
@@ -187,16 +184,14 @@ fun IfElseContext.toAst() : IfElse = when {
     else -> IfElse(boolean_().toAst(), instruction_list().toAst(), emptyList())
 }
 
-fun BooleanContext.toAst() : Bool = when {
-    BOOL() != null -> Bool(text.toBoolean())
-    else -> Bool(expression()[0].toAst() == expression()[1].toAst())
-}
+fun BooleanContext.toAst() : Bool = Bool(expression()[0].toAst(), expression()[1].toAst())
+
 
 fun IntervalContext.toAst() : Interval = Interval(expression()[0].toAst(), expression()[1].toAst(), CLOSE_INTERVAL() == null)
 
 fun AlternativeContext.toAst(): List<Instruction> = instruction_list().toAst()
 
-fun FillContext.toAst() : Fill = Fill(text)
+fun FillContext.toAst() : Fill = Fill(CONST().text)
 
 
 fun ForContext.toAst() : ForLoop = ForLoop(variable().toAst(), interval().toAst(), instruction_list().toAst())

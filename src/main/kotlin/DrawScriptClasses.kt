@@ -45,14 +45,14 @@ data class Script(
     val declarations: List<Declaration>, val expressionDimension: Dimension,
     val expressionBackground: Expression, val origin: Point, val instructions: List<Instruction>
 ) {
-    init {
-        validate()
-    }
 
     var initializedConstants = mutableMapOf<String, ExpressionData>()
     var backgroundColor: Color = Color(255, 255, 255) // Valor inicial
     var canvasDimensions: Dimension = expressionDimension
     var errors = mutableListOf<ScriptError>()
+    init {
+        validate()
+    }
 
     override fun toString(): String {
         return ("$declarations---" +
@@ -67,8 +67,8 @@ data class Script(
 
         //Verificar se uma constante não é inicializada mais do que uma vez
         declarations.forEachIndexed { line, it ->
-            if(initializedConstants != null) {
-                if (initializedConstants.contains(it.varId))
+            if (initializedConstants != null) {
+                if (isInitialized(it.varId))
                     errors.add(ConstError(it.varId))
                 else
                     initializedConstants[it.varId] = it.expression
@@ -76,12 +76,22 @@ data class Script(
         }
 
         //Verificar se o background é inicializado com uma cor
-        if (expressionBackground is ConstantRef
-            && initializedConstants[expressionBackground.constId] !is Color
-        )
-            errors.add(ConstTypeError(expressionBackground.constId))
-        else if (expressionBackground is Color)
+        if(expressionBackground is ConstantRef) {
+            if(isInitialized(expressionBackground.constId)) {
+                if(initializedConstants[expressionBackground.constId] !is Color)
+                    errors.add(ConstTypeError(expressionBackground.constId))
+            } else {
+                errors.add(ConstError(expressionBackground.constId))
+            }
+        } else if(expressionBackground is Color) {
             backgroundColor = expressionBackground
+        }
+//        if (expressionBackground is ConstantRef
+//            && initializedConstants[expressionBackground.constId] !is Color
+//        )
+//            errors.add(ConstTypeError(expressionBackground.constId))
+//        else if (expressionBackground is Color)
+//            backgroundColor = expressionBackground
 
         //Verificar se a dimension não tem uma expressão inválida
         validateExpression(expressionDimension.w)
@@ -89,6 +99,12 @@ data class Script(
 
         //Validar instruções
         validateInstructions(instructions)
+        println("Erros na validação: $errors")
+    }
+
+
+    fun isInitialized(constId: String): Boolean {
+        return initializedConstants.contains(constId)
     }
 
     fun validateInstructions(instructions: List<Instruction>) {
@@ -99,29 +115,32 @@ data class Script(
                     validateInstructions(it.sequence)
                     validateInstructions(it.alternative)
                 }
-                is Fill -> {
-                    if(initializedConstants != null) {
-                        if (initializedConstants.contains(it.varId)) {
-                            if (initializedConstants[it.varId] !is Color)
-                                errors.add(TypeError(initializedConstants[it.varId]!!::class, Color::class))
-                        } else {
-                            errors.add(ConstError(it.varId))
-                        }
-                    }
 
+                is Fill -> {
+                    if (initializedConstants != null && isInitialized(it.varId)) {
+                        if (initializedConstants[it.varId] !is Color)
+                            errors.add(TypeError(initializedConstants[it.varId]!!::class, Color::class))
+                    } else {
+                        errors.add(ConstError(it.varId))
+                    }
                 }
+
                 is ForLoop -> validateInstructions(it.sequence)
-                else -> throw IllegalArgumentException("Instrução não reconhecida $it")
+                is Border -> println("Skip de validações do border")
             }
         }
     }
+
     fun validateExpression(expression: Expression) {
         fun validateSimpleExpression(simpleExp: Expression) {
-            if (simpleExp is ConstantRef && initializedConstants[simpleExp.constId] is Color)
+            if (simpleExp is ConstantRef
+                && (!isInitialized(simpleExp.constId) || initializedConstants[simpleExp.constId] is Color))
                 errors.add(ConstTypeError(simpleExp.constId))
+
             if (simpleExp is Color)
                 errors.add(TypeError(Color::class, Literal::class))
         }
+
 
         fun validateBinaryExpression(binaryExp: BinaryExpression) {
             validateExpression(binaryExp.left)
@@ -260,7 +279,12 @@ data class Line(override val origin: Point, val width: Expression) : Figure {
     }
 }
 
-data class Border(val color: Color) : Instruction
+data class Border(val color: Color) : Instruction {
+
+    override fun toString(): String {
+        return "border $color"
+    }
+}
 
 
 sealed interface Expression
@@ -279,9 +303,9 @@ data class Variable(val varId: String) : Expression {
     }
 }
 
-data class Bool(val value: Boolean) : Expression {
+data class Bool(val left: Expression, val right: Expression) : Expression {
     override fun toString(): String {
-        return value.toString()
+        return "$left = $right"
     }
 }
 

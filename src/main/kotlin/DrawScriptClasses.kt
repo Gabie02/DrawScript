@@ -55,11 +55,11 @@ data class Script(
     }
 
     override fun toString(): String {
-        return ("$declarations---" +
+        return ("${declarations.joinToString("\n") { it.toString() }}\n---" +
                 "\ndimension: $expressionDimension" +
                 "\nbackground: $expressionBackground" +
                 "\norigin: $origin\n---\n$instructions")
-            .filterNot { it == '[' || it == ']' }
+                .filterNot { it == '[' || it == ']' }
     }
 
     fun validate() {
@@ -175,7 +175,7 @@ data class Script(
 data class Declaration(val varId: String, val expression: ExpressionData) {
 
     override fun toString(): String {
-        return "$varId: $expression\n"
+        return "$varId: $expression"
     }
 
 }

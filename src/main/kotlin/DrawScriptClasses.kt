@@ -1,3 +1,4 @@
+import kotlin.math.exp
 import kotlin.reflect.KClass
 
 class SequenceIterator(private val sequence: List<Instruction>) {
@@ -6,6 +7,10 @@ class SequenceIterator(private val sequence: List<Instruction>) {
 
     fun next(): Instruction {
         return sequence[next++]
+    }
+
+    override fun toString(): String {
+        return sequence.toString()
     }
 }
 
@@ -16,7 +21,11 @@ class SequenceStack {
 
     fun push(it: SequenceIterator): Boolean = elements.add(it)
 
-    fun pop(): SequenceIterator = elements[elements.size - 1]
+    fun pop(): SequenceIterator = elements.removeLast()
+
+    override fun toString(): String {
+        return elements.toString()
+    }
 }
 
 sealed interface ScriptError
@@ -50,16 +59,14 @@ data class Script(
     var backgroundColor: Color = Color(255, 255, 255) // Valor inicial
     var canvasDimensions: Dimension = expressionDimension
     var errors = mutableListOf<ScriptError>()
-    init {
-        validate()
-    }
+
 
     override fun toString(): String {
         return ("${declarations.joinToString("\n") { it.toString() }}\n---" +
                 "\ndimension: $expressionDimension" +
                 "\nbackground: $expressionBackground" +
                 "\norigin: $origin\n---\n$instructions")
-                .filterNot { it == '[' || it == ']' }
+            .filterNot { it == '[' || it == ']' }
     }
 
     fun validate() {
@@ -67,23 +74,22 @@ data class Script(
 
         //Verificar se uma constante não é inicializada mais do que uma vez
         declarations.forEachIndexed { line, it ->
-            if (initializedConstants != null) {
-                if (isInitialized(it.varId))
-                    errors.add(ConstError(it.varId))
-                else
-                    initializedConstants[it.varId] = it.expression
-            }
+            if (isInitialized(it.varId))
+                errors.add(ConstError(it.varId))
+            else
+                initializedConstants[it.varId] = it.expression
+
         }
 
         //Verificar se o background é inicializado com uma cor
-        if(expressionBackground is ConstantRef) {
-            if(isInitialized(expressionBackground.constId)) {
-                if(initializedConstants[expressionBackground.constId] !is Color)
+        if (expressionBackground is ConstantRef) {
+            if (isInitialized(expressionBackground.constId)) {
+                if (initializedConstants[expressionBackground.constId] !is Color)
                     errors.add(ConstTypeError(expressionBackground.constId))
             } else {
                 errors.add(ConstError(expressionBackground.constId))
             }
-        } else if(expressionBackground is Color) {
+        } else if (expressionBackground is Color) {
             backgroundColor = expressionBackground
         }
 //        if (expressionBackground is ConstantRef
@@ -99,7 +105,6 @@ data class Script(
 
         //Validar instruções
         validateInstructions(instructions)
-        println("Erros na validação: $errors")
     }
 
 
@@ -133,8 +138,13 @@ data class Script(
 
     fun validateExpression(expression: Expression) {
         fun validateSimpleExpression(simpleExp: Expression) {
+            println("Validar Expressão $simpleExp")
+            if (simpleExp is ConstantRef) {
+                println("${initializedConstants[simpleExp.constId] is Color}")
+            }
             if (simpleExp is ConstantRef
-                && (!isInitialized(simpleExp.constId) || initializedConstants[simpleExp.constId] is Color))
+                && (!isInitialized(simpleExp.constId) || initializedConstants[simpleExp.constId] is Color)
+            )
                 errors.add(ConstTypeError(simpleExp.constId))
 
             if (simpleExp is Color)
@@ -148,7 +158,10 @@ data class Script(
         }
         when (expression) {
             is BinaryExpression -> validateBinaryExpression(expression)
-            else -> validateSimpleExpression(expression)
+            else -> {
+                println("Simple exp -> $expression")
+                validateSimpleExpression(expression)
+            }
         }
     }
 
@@ -220,7 +233,6 @@ data class ForLoop(val incrementVar: Variable, val interval: Interval, val seque
 data class Interval(val start: Expression, val end: Expression, val exclusive: Boolean) {
 
     override fun toString(): String {
-
         if (exclusive)
             return "[$start, $end["
         return "[$start, $end]"

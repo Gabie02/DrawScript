@@ -1,0 +1,10 @@
+N: 8
+SIDE: 0|255|20
+MARGIN: 5
+WHITE: 255|255|255
+---
+dimension: 40 ~ 40
+background: 200|200|200
+origin: (1, 1)
+---
+fill WHITE

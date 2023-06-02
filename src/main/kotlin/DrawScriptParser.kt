@@ -5,55 +5,13 @@ import org.antlr.v4.runtime.tree.TerminalNode
 
 
 fun main() {
-    val script = Script(
-//         CONSTANTS
-        listOf(
-            // N: 8
-            Declaration("N", Literal(8)),
-            // SIDE: 40
-            Declaration("SIDE", Color(0,255,20)),
-            // MARGIN: 5
-            Declaration("MARGIN", Literal(5)),
-            // WHITE: 255|255|255
-            Declaration("WHITE", Color(255,255,255))
-            ),
-
-        // PROPERTIES
-        Dimension(Literal(40),Literal(40)),
-        Color(200,200,200),
-        Point(Literal(1),Literal(1)),
-
-        // INSTRUCTIONS
-       listOf(Fill("WHITE"))
-    )
-    //print(script)
-    testToAst("N: 8\n"
-                + "SIDE: 0|255|20\n"
-                + "MARGIN: 5\n"
-                + "WHITE: 255|255|255\n"
-                + "---\n"
-                + "dimension: 40 ~ 40\n"
-                + "background: 200|200|200\n"
-                + "origin: (1, 1)\n"
-                + "---"
-                + "fill WHITE"
-                , script)
-}
-
-fun testToAst(input: String, expectedScript: Script) {
-    val lexer = DrawScriptLexer(CharStreams.fromString(input))
+    val testFileName = "src/test/resources/for-loop-test.txt"
+    val lexer = DrawScriptLexer(CharStreams.fromFileName(testFileName))
     val parser = DrawScriptParser(CommonTokenStream(lexer))
-
-    val actualScript = parser.script().toAst()
-
-    if (actualScript == expectedScript)
-        println("Test passed!")
-    else
-        println("Test failed!")
-    println("Expected:\n$expectedScript")
-    println("*******************************")
-    println("Actual:\n$actualScript")
-
+    val scriptObj = parser.script().toAst()
+    println(scriptObj)
+    val interp  = DrawScriptInterpreter(scriptObj)
+    interp.run()
 }
 
 
@@ -108,9 +66,14 @@ fun ExpressionContext.toAst() : Expression = when {
         when (expression().size) {
             1 -> expression()[0].toAst()
             else -> {
-                if (expression()[0].children.filterIsInstance<TerminalNode>().isNotEmpty()
-                    && expression()[1].children.filterIsInstance<TerminalNode>().isNotEmpty()
-                ) {
+//                for(e in expression()) {
+//                    println(e.text)
+//                }
+//                println("${expression()[0].children.filterIsInstance<TerminalNode>().isNotEmpty()} &&" +
+//                        "${expression()[1].children.filterIsInstance<TerminalNode>().isNotEmpty()}")
+//                if (expression()[0].children.filterIsInstance<TerminalNode>().isNotEmpty()
+//                    || expression()[1].children.filterIsInstance<TerminalNode>().isNotEmpty()
+//                ) {
                     val left = expression()[0].toAst()
                     val right = expression()[1].toAst()
                     if(left is Color || right is Color)
@@ -120,9 +83,11 @@ fun ExpressionContext.toAst() : Expression = when {
                         getOperatorFor(children[1].text),
                         right
                     )
-                }
-                Literal(expression()[0].text.toInt() + expression()[1].text.toInt())
-
+//                } else if(expression()[0].children.filterIsInstance<TerminalNode>().isNotEmpty()) {
+//                    expression()[0].toAst()
+//                } else {
+//                    expression()[1].toAst()
+//                }
             }
         }
     }
@@ -150,7 +115,9 @@ fun ExpressionDataContext.toAst() : ExpressionData =
     }
 
 fun ColorContext.toAst() : Color {
-    return Color(LITERAL(0).text.toInt(),LITERAL(1).text.toInt() ,LITERAL(2).text.toInt())
+    if(LITERAL(0) != null && LITERAL(1) != null && LITERAL(2) != null)
+        return Color(LITERAL(0).text.toInt(),LITERAL(1).text.toInt() ,LITERAL(2).text.toInt())
+    return Color(LITERAL(0).text.toInt(),LITERAL(0).text.toInt() ,LITERAL(0).text.toInt())
 }
 
 fun DimensionContext.toAst() : Dimension {

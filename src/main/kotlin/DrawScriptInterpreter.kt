@@ -6,21 +6,24 @@ class DrawScriptInterpreter(private val script: Script) {
     private val executionStack = SequenceStack()
 
     fun run() {
+        script.validate()
         val sintaxErrors = script.errors
         if (sintaxErrors.isNotEmpty()) {
-            println(sintaxErrors)
+            println("Erros na validação: $sintaxErrors")
             return
         }
 
         val mainIterator = SequenceIterator(script.instructions)
         executionStack.push(mainIterator)
         while(!executionStack.isEmpty) {
-            iterateThroughSequence(executionStack.pop())
+            println(executionStack.toString())
+            iterateTop()
         }
     }
 
 
-    private fun iterateThroughSequence(iter: SequenceIterator) {
+    private fun iterateTop() {
+        val iter = executionStack.pop()
         while (iter.hasNext) {
             val nextInst = iter.next()
             evaluateInstruction(nextInst)
@@ -30,13 +33,19 @@ class DrawScriptInterpreter(private val script: Script) {
 
     private fun evaluateInstruction(inst: Instruction) {
         when (inst) {
-            is Border -> TODO()
+            is Border -> println("BORDER ${inst.color}")
             is IfElse -> {
-                if (evaluate(inst.guard) == 1) {
+                println("--- IF ---")
+                val value = evaluate(inst.guard)
+                println("Valor da guard: $value")
+                if (value == 1) {
                     val newIter = SequenceIterator(inst.sequence)
                     executionStack.push(newIter)
-                    iterateThroughSequence(newIter)
-                    executionStack.pop()
+                    iterateTop()
+                } else if (inst.alternative.isNotEmpty()){
+                    val newIter = SequenceIterator(inst.alternative)
+                    executionStack.push(newIter)
+                    iterateTop()
                 }
             }
 
@@ -44,18 +53,24 @@ class DrawScriptInterpreter(private val script: Script) {
             is Elipse -> TODO()
             is Line -> TODO()
             is Rectangle -> TODO()
-            is Fill -> TODO()
+            is Fill -> println("FILL ${inst.varId}")
             is ForLoop -> {
+                println("--- FOR LOOP ---")
+                val variableId = inst.incrementVar.varId
                 val start = evaluate(inst.interval.start)
                 val end = if (inst.interval.exclusive) (evaluate(inst.interval.end) - 1) else evaluate(inst.interval.end)
-                initializedVars[inst.incrementVar.varId] = start
+                initializedVars[variableId] = start
 
-                val newIter = SequenceIterator(inst.sequence)
-                executionStack.push(newIter)
-                while (initializedVars[inst.incrementVar.varId]!! <= end) {
-                    iterateThroughSequence(newIter)
+                var value = initializedVars[variableId]!!
+                while (value < end) {
+                    value = initializedVars[variableId]!!
+                    println("$variableId = $value")
+                    val newIter = SequenceIterator(inst.sequence)
+                    executionStack.push(newIter)
+                    iterateTop()
+                    initializedVars[variableId] = (value + 1)
                 }
-                executionStack.pop()
+                println("--- FIM FOR LOOP ---")
 
             }
         }
@@ -71,13 +86,17 @@ class DrawScriptInterpreter(private val script: Script) {
             is Variable -> initializedVars[exp.varId]!!
             else -> throw IllegalArgumentException("Expressão não válida $exp")
         }
-    private fun operation(left: Int, oper: Operator, right: Int): Int =
+    private fun operation(left: Int, oper: Operator, right: Int): Int {
+        val res : Int
         when (oper) {
-            Operator.PLUS -> left + right
-            Operator.MINUS -> left - right
-            Operator.TIMES -> left * right
-            Operator.DIVISION -> left / right
-            Operator.MOD -> left%right
+            Operator.PLUS -> res = left + right
+            Operator.MINUS -> res = left - right
+            Operator.TIMES -> res = left * right
+            Operator.DIVISION -> res = left / right
+            Operator.MOD -> res = left % right
         }
+//        println("$left $oper $right = $res")
+        return res
+    }
 
 }

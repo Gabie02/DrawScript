@@ -34,14 +34,13 @@ fill: 'fill' CONST;
 
 /* Expressions */
 expression: expression OPERATOR expression
-            | CONST
             | expressionData
             | variable
             | constant
             | '(' expression ')';
 expressionData: LITERAL
             | color;
-constant: PROP;
+constant: CONST;
 variable: PROP;
     // Tipos de dados
 boolean: (expression '=' expression);

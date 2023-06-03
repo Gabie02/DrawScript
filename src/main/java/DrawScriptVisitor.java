@@ -124,6 +124,24 @@ public interface DrawScriptVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitExpression(DrawScriptParser.ExpressionContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link DrawScriptParser#expressionAdd}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitExpressionAdd(DrawScriptParser.ExpressionAddContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link DrawScriptParser#expressionMult}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitExpressionMult(DrawScriptParser.ExpressionMultContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link DrawScriptParser#expressionAtom}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitExpressionAtom(DrawScriptParser.ExpressionAtomContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link DrawScriptParser#expressionData}.
 	 * @param ctx the parse tree
 	 * @return the visitor result

@@ -197,6 +197,36 @@ public interface DrawScriptListener extends ParseTreeListener {
 	 */
 	void exitExpression(DrawScriptParser.ExpressionContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link DrawScriptParser#expressionAdd}.
+	 * @param ctx the parse tree
+	 */
+	void enterExpressionAdd(DrawScriptParser.ExpressionAddContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link DrawScriptParser#expressionAdd}.
+	 * @param ctx the parse tree
+	 */
+	void exitExpressionAdd(DrawScriptParser.ExpressionAddContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link DrawScriptParser#expressionMult}.
+	 * @param ctx the parse tree
+	 */
+	void enterExpressionMult(DrawScriptParser.ExpressionMultContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link DrawScriptParser#expressionMult}.
+	 * @param ctx the parse tree
+	 */
+	void exitExpressionMult(DrawScriptParser.ExpressionMultContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link DrawScriptParser#expressionAtom}.
+	 * @param ctx the parse tree
+	 */
+	void enterExpressionAtom(DrawScriptParser.ExpressionAtomContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link DrawScriptParser#expressionAtom}.
+	 * @param ctx the parse tree
+	 */
+	void exitExpressionAtom(DrawScriptParser.ExpressionAtomContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link DrawScriptParser#expressionData}.
 	 * @param ctx the parse tree
 	 */

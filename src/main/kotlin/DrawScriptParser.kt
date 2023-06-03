@@ -55,42 +55,70 @@ fun PropertyContext.toAst() : Property =
         else -> throw IllegalStateException("Invalid expression")
     }
 
+fun ExpressionContext.toAst() : Expression {
+    return expressionAdd().toAst()
+}
 
-fun ExpressionContext.toAst() : Expression = when {
-    expressionData() != null-> expressionData().toAst()
-    constant() != null-> constant().toAst()
-    variable() != null -> variable().toAst()
-    expression() != null && expression().isNotEmpty() -> {
-        when (expression().size) {
-            1 -> expression()[0].toAst()
-            else -> {
-//                for(e in expression()) {
-//                    println(e.text)
-//                }
-//                println("${expression()[0].children.filterIsInstance<TerminalNode>().isNotEmpty()} &&" +
-//                        "${expression()[1].children.filterIsInstance<TerminalNode>().isNotEmpty()}")
-//                if (expression()[0].children.filterIsInstance<TerminalNode>().isNotEmpty()
-//                    || expression()[1].children.filterIsInstance<TerminalNode>().isNotEmpty()
-//                ) {
-                    val left = expression()[0].toAst()
-                    val right = expression()[1].toAst()
-                    if(left is Color || right is Color)
-                        throw IllegalArgumentException("Não se podem fazer contas com cores!")
-                    BinaryExpression(
-                        left,
-                        getOperatorFor(children[1].text),
-                        right
-                    )
-//                } else if(expression()[0].children.filterIsInstance<TerminalNode>().isNotEmpty()) {
-//                    expression()[0].toAst()
-//                } else {
-//                    expression()[1].toAst()
-//                }
-            }
-        }
+fun ExpressionAddContext.toAst() : Expression =
+    when {
+        PLUS() != null -> BinaryExpression(expressionMult(0).toAst(), Operator.PLUS, expressionMult(1).toAst())
+        MINUS() != null -> BinaryExpression(expressionMult(0).toAst(), Operator.MINUS, expressionMult(1).toAst())
+        else -> throw IllegalArgumentException("Expressão desconhecida ${this.text}")
     }
+
+fun ExpressionMultContext.toAst() : Expression =
+    when {
+        TIMES() != null -> BinaryExpression(expressionAtom(0).toAst(), Operator.TIMES, expressionAtom(1).toAst())
+        DIV() != null -> BinaryExpression(expressionAtom(0).toAst(), Operator.DIVISION, expressionAtom(1).toAst())
+        MOD() != null -> BinaryExpression(expressionAtom(0).toAst(), Operator.MOD, expressionAtom(1).toAst())
+        else -> throw IllegalArgumentException("Expressão desconhecida ${this.text}")
+    }
+
+
+fun ExpressionAtomContext.toAst() : Expression = when {
+    expressionData() != null -> expressionData().toAst()
+    constant() != null -> constant().toAst()
+    variable() != null -> variable().toAst()
+    expression() != null -> expression().toAst()
     else -> throw IllegalArgumentException("Expressão desconhecida ${this.text}")
 }
+
+
+//fun ExpressionContext.toAst() : Expression = when {
+//    expressionData() != null-> expressionData().toAst()
+//    constant() != null-> constant().toAst()
+//    variable() != null -> variable().toAst()
+//    expression() != null && expression().isNotEmpty() -> {
+//        when (expression().size) {
+//            1 -> expression()[0].toAst()
+//            else -> {
+////                for(e in expression()) {
+////                    println(e.text)
+////                }
+////                println("${expression()[0].children.filterIsInstance<TerminalNode>().isNotEmpty()} &&" +
+////                        "${expression()[1].children.filterIsInstance<TerminalNode>().isNotEmpty()}")
+////                if (expression()[0].children.filterIsInstance<TerminalNode>().isNotEmpty()
+////                    || expression()[1].children.filterIsInstance<TerminalNode>().isNotEmpty()
+////                ) {
+//                    val left = expression()[0].toAst()
+//                    val right = expression()[1].toAst()
+//                    if(left is Color || right is Color)
+//                        throw IllegalArgumentException("Não se podem fazer contas com cores!")
+//                    BinaryExpression(
+//                        left,
+//                        getOperatorFor(children[1].text),
+//                        right
+//                    )
+////                } else if(expression()[0].children.filterIsInstance<TerminalNode>().isNotEmpty()) {
+////                    expression()[0].toAst()
+////                } else {
+////                    expression()[1].toAst()
+////                }
+//            }
+//        }
+//    }
+//    else -> throw IllegalArgumentException("Expressão desconhecida ${this.text}")
+//}
 
 fun getOperatorFor(text: String?): Operator = when (text) {
     "+" -> Operator.PLUS

@@ -18,4 +18,4 @@ for l in [0,N[ {
   }
 }
 border 0|0|255
-rectangle (MARGIN,MARGIN) N*SIDE ~ N*SIDE
+

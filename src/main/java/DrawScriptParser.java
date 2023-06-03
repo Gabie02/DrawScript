@@ -1173,8 +1173,8 @@ public class DrawScriptParser extends Parser {
 		public PointContext point() {
 			return getRuleContext(PointContext.class,0);
 		}
-		public ExpressionContext expression() {
-			return getRuleContext(ExpressionContext.class,0);
+		public DimensionContext dimension() {
+			return getRuleContext(DimensionContext.class,0);
 		}
 		public ElipseContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -1206,7 +1206,7 @@ public class DrawScriptParser extends Parser {
 			setState(190);
 			point();
 			setState(191);
-			expression(0);
+			dimension();
 			}
 		}
 		catch (RecognitionException re) {
@@ -1222,11 +1222,11 @@ public class DrawScriptParser extends Parser {
 
 	@SuppressWarnings("CheckReturnValue")
 	public static class LineContext extends ParserRuleContext {
-		public PointContext point() {
-			return getRuleContext(PointContext.class,0);
+		public List<PointContext> point() {
+			return getRuleContexts(PointContext.class);
 		}
-		public ExpressionContext expression() {
-			return getRuleContext(ExpressionContext.class,0);
+		public PointContext point(int i) {
+			return getRuleContext(PointContext.class,i);
 		}
 		public LineContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -1258,7 +1258,7 @@ public class DrawScriptParser extends Parser {
 			setState(194);
 			point();
 			setState(195);
-			expression(0);
+			point();
 			}
 		}
 		catch (RecognitionException re) {
@@ -2072,9 +2072,9 @@ public class DrawScriptParser extends Parser {
 		"\u0003$\u0012\u0000\u00b8\u0019\u0001\u0000\u0000\u0000\u00b9\u00ba\u0005"+
 		"\u000b\u0000\u0000\u00ba\u00bb\u0003.\u0017\u0000\u00bb\u00bc\u0003$\u0012"+
 		"\u0000\u00bc\u001b\u0001\u0000\u0000\u0000\u00bd\u00be\u0005\f\u0000\u0000"+
-		"\u00be\u00bf\u0003.\u0017\u0000\u00bf\u00c0\u0003$\u0012\u0000\u00c0\u001d"+
+		"\u00be\u00bf\u0003.\u0017\u0000\u00bf\u00c0\u00030\u0018\u0000\u00c0\u001d"+
 		"\u0001\u0000\u0000\u0000\u00c1\u00c2\u0005\r\u0000\u0000\u00c2\u00c3\u0003"+
-		".\u0017\u0000\u00c3\u00c4\u0003$\u0012\u0000\u00c4\u001f\u0001\u0000\u0000"+
+		".\u0017\u0000\u00c3\u00c4\u0003.\u0017\u0000\u00c4\u001f\u0001\u0000\u0000"+
 		"\u0000\u00c5\u00c6\u0005\u000e\u0000\u0000\u00c6\u00c7\u00034\u001a\u0000"+
 		"\u00c7!\u0001\u0000\u0000\u0000\u00c8\u00c9\u0005\u000f\u0000\u0000\u00c9"+
 		"\u00ca\u0005\u0017\u0000\u0000\u00ca#\u0001\u0000\u0000\u0000\u00cb\u00cc"+

@@ -1,4 +1,3 @@
-import kotlin.math.exp
 import kotlin.reflect.KClass
 
 class SequenceIterator(private val sequence: List<Instruction>) {
@@ -56,8 +55,8 @@ data class Script(
 ) {
 
     var initializedConstants = mutableMapOf<String, ExpressionData>()
-    var backgroundColor: Color = Color(255, 255, 255) // Valor inicial
-    var canvasDimensions: Dimension = expressionDimension
+//    var backgroundColor: Color = Color(255, 255, 255) // Valor inicial
+//    var canvasDimensions: Dimension = expressionDimension
     var errors = mutableListOf<ScriptError>()
 
 
@@ -89,15 +88,10 @@ data class Script(
             } else {
                 errors.add(ConstError(expressionBackground.constId))
             }
-        } else if (expressionBackground is Color) {
-            backgroundColor = expressionBackground
+        } else if (expressionBackground !is Color) {
+            errors.add(TypeError(Data::class, Color::class))
+            TODO()
         }
-//        if (expressionBackground is ConstantRef
-//            && initializedConstants[expressionBackground.constId] !is Color
-//        )
-//            errors.add(ConstTypeError(expressionBackground.constId))
-//        else if (expressionBackground is Color)
-//            backgroundColor = expressionBackground
 
         //Verificar se a dimension não tem uma expressão inválida
         validateExpression(expressionDimension.w)
@@ -123,7 +117,7 @@ data class Script(
                 }
 
                 is Fill -> {
-                    if (initializedConstants != null && isInitialized(it.varId)) {
+                    if (isInitialized(it.varId)) {
                         if (initializedConstants[it.varId] !is Color)
                             errors.add(TypeError(initializedConstants[it.varId]!!::class, Color::class))
                     } else {
@@ -174,8 +168,14 @@ data class Script(
             }
 
             is Circle -> validateExpression(figure.radius)
-            is Elipse -> TODO()
-            is Line -> validateExpression(figure.width)
+            is Elipse -> {
+                validateExpression(figure.dim.w)
+                validateExpression(figure.dim.h)
+            }
+            is Line -> {
+                validateExpression(figure.destination.x)
+                validateExpression(figure.destination.y)
+            }
         }
         return errors
     }
@@ -277,15 +277,15 @@ data class Circle(override val origin: Point, val radius: Expression) : Figure {
     }
 }
 
-data class Elipse(override val origin: Point, val radius: Expression) : Figure {
+data class Elipse(override val origin: Point, val dim: Dimension) : Figure {
     override fun toString(): String {
-        return "circle origin:$origin radius:$radius"
+        return "circle origin:$origin radius:$dim"
     }
 }
 
-data class Line(override val origin: Point, val width: Expression) : Figure {
+data class Line(override val origin: Point, val destination: Point) : Figure {
     override fun toString(): String {
-        return "line origin:$origin width:$width"
+        return "line origin:$origin width:$destination"
     }
 }
 

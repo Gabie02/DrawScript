@@ -1,8 +1,6 @@
 import DrawScriptParser.*
 import org.antlr.v4.runtime.CharStreams
 import org.antlr.v4.runtime.CommonTokenStream
-import org.antlr.v4.runtime.tree.TerminalNode
-
 
 fun main() {
     val testFileName = "src/test/resources/for-loop-test.txt"
@@ -177,9 +175,9 @@ fun SquareContext.toAst() : Rectangle = Rectangle(point().toAst(), Dimension(exp
 
 fun CircleContext.toAst() : Circle = Circle(point().toAst(), expression().toAst())
 
-fun ElipseContext.toAst() : Elipse = Elipse(point().toAst(), expression().toAst())
+fun ElipseContext.toAst() : Elipse = Elipse(point().toAst(), dimension().toAst())
 
-fun LineContext.toAst() : Line = Line(point().toAst(), expression().toAst())
+fun LineContext.toAst() : Line = Line(point()[0].toAst(), point()[1].toAst())
 
 fun BorderContext.toAst() : Border = Border(color().toAst())
 

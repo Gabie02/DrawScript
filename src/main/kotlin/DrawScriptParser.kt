@@ -9,7 +9,7 @@ fun main() {
     val lexer = DrawScriptLexer(CharStreams.fromFileName(testFileName))
     val parser = DrawScriptParser(CommonTokenStream(lexer))
     val scriptObj = parser.script().toAst()
-    println(scriptObj)
+//    println(scriptObj)
     val interp  = DrawScriptInterpreter(scriptObj)
     interp.run()
 }
@@ -61,8 +61,7 @@ fun ExpressionContext.toAst() : Expression = when {
     expressionData() != null-> expressionData().toAst()
     constant() != null-> constant().toAst()
     variable() != null -> variable().toAst()
-    CONST() != null -> Literal(CONST)
-    expression() != null -> {
+    expression() != null && expression().isNotEmpty() -> {
         when (expression().size) {
             1 -> expression()[0].toAst()
             else -> {
@@ -91,7 +90,7 @@ fun ExpressionContext.toAst() : Expression = when {
             }
         }
     }
-    else -> toAst()
+    else -> throw IllegalArgumentException("Expressão desconhecida ${this.text}")
 }
 
 fun getOperatorFor(text: String?): Operator = when (text) {
@@ -103,7 +102,7 @@ fun getOperatorFor(text: String?): Operator = when (text) {
 }
 
 
-fun ConstantContext.toAst() : ConstantRef = ConstantRef(PROP().text)
+fun ConstantContext.toAst() : ConstantRef = ConstantRef(CONST().text)
 
 fun VariableContext.toAst() : Variable = Variable(PROP().text)
 

@@ -117,6 +117,7 @@ data class Script(
             when (it) {
                 is Figure -> errors.addAll(validateFigure(it))
                 is IfElse -> {
+                    validateExpression(it.guard)
                     validateInstructions(it.sequence)
                     validateInstructions(it.alternative)
                 }
@@ -138,10 +139,6 @@ data class Script(
 
     fun validateExpression(expression: Expression) {
         fun validateSimpleExpression(simpleExp: Expression) {
-            println("Validar Expressão $simpleExp")
-            if (simpleExp is ConstantRef) {
-                println("${initializedConstants[simpleExp.constId] is Color}")
-            }
             if (simpleExp is ConstantRef
                 && (!isInitialized(simpleExp.constId) || initializedConstants[simpleExp.constId] is Color)
             )
@@ -158,10 +155,11 @@ data class Script(
         }
         when (expression) {
             is BinaryExpression -> validateBinaryExpression(expression)
-            else -> {
-                println("Simple exp -> $expression")
-                validateSimpleExpression(expression)
+            is Bool -> {
+                validateExpression(expression.left)
+                validateExpression(expression.right)
             }
+            else -> validateSimpleExpression(expression)
         }
     }
 

@@ -1,17 +1,19 @@
 import java.lang.IllegalArgumentException
 
 class DrawScriptInterpreter(private val script: Script) {
-    private val initializedConstants = mutableMapOf<String, Int>()
+    private val initializedConstants = mutableMapOf<String, ExpressionData>()
     private val initializedVars = mutableMapOf<String, Int>()
     private val executionStack = SequenceStack()
 
     fun run() {
         script.validate()
+        initializedConstants.putAll(script.initializedConstants)
         val sintaxErrors = script.errors
         if (sintaxErrors.isNotEmpty()) {
             println("Erros na validação: $sintaxErrors")
             return
         }
+        println("Script sem erros")
 
         val mainIterator = SequenceIterator(script.instructions)
         executionStack.push(mainIterator)
@@ -80,7 +82,12 @@ class DrawScriptInterpreter(private val script: Script) {
     private fun evaluate(exp: Expression): Int =
         when (exp) {
             is Literal -> exp.value
-            is ConstantRef -> initializedConstants[exp.constId]!!
+            is ConstantRef -> {
+                val value = initializedConstants[exp.constId]
+                if(value is Literal)
+                    value.value
+                else throw IllegalArgumentException("Não é possível avaliar esta constante (é cor)")
+            }
             is BinaryExpression -> operation(evaluate(exp.left), exp.operator, evaluate(exp.right))
             is Bool -> if (evaluate(exp.left) == evaluate(exp.right)) 1 else 0
             is Variable -> initializedVars[exp.varId]!!

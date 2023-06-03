@@ -59,20 +59,31 @@ fun ExpressionContext.toAst() : Expression {
     return expressionAdd().toAst()
 }
 
-fun ExpressionAddContext.toAst() : Expression =
-    when {
-        PLUS() != null -> BinaryExpression(expressionMult(0).toAst(), Operator.PLUS, expressionMult(1).toAst())
-        MINUS() != null -> BinaryExpression(expressionMult(0).toAst(), Operator.MINUS, expressionMult(1).toAst())
-        else -> throw IllegalArgumentException("Expressão desconhecida ${this.text}")
+fun ExpressionAddContext.toAst() : Expression {
+    if (OPERATORADD(0) != null) {
+        val operador = getOperatorFor(OPERATORADD(0).text)
+        when {
+            operador == Operator.PLUS -> return BinaryExpression(expressionMult(0).toAst(), Operator.PLUS, expressionMult(1).toAst())
+            operador == Operator.MINUS -> return BinaryExpression(expressionMult(0).toAst(), Operator.MINUS, expressionMult(1).toAst())
+            else -> throw IllegalArgumentException("Expressão desconhecida ${this.text}")
+        }
     }
+    return expressionMult(0).toAst()
+}
 
-fun ExpressionMultContext.toAst() : Expression =
-    when {
-        TIMES() != null -> BinaryExpression(expressionAtom(0).toAst(), Operator.TIMES, expressionAtom(1).toAst())
-        DIV() != null -> BinaryExpression(expressionAtom(0).toAst(), Operator.DIVISION, expressionAtom(1).toAst())
-        MOD() != null -> BinaryExpression(expressionAtom(0).toAst(), Operator.MOD, expressionAtom(1).toAst())
-        else -> throw IllegalArgumentException("Expressão desconhecida ${this.text}")
+
+fun ExpressionMultContext.toAst() : Expression {
+    if (OPERATORMULT(0) != null) {
+        val operador = getOperatorFor(OPERATORMULT(0).text)
+        when {
+            operador == Operator.TIMES -> return BinaryExpression(expressionAtom(0).toAst(), Operator.TIMES, expressionAtom(1).toAst())
+            operador == Operator.DIVISION -> return BinaryExpression(expressionAtom(0).toAst(), Operator.DIVISION, expressionAtom(1).toAst())
+            operador == Operator.MOD -> return BinaryExpression(expressionAtom(0).toAst(), Operator.MOD, expressionAtom(1).toAst())
+            else -> throw IllegalArgumentException("Expressão desconhecida ${this.text}")
+        }
     }
+    return expressionAtom(0).toAst()
+}
 
 
 fun ExpressionAtomContext.toAst() : Expression = when {

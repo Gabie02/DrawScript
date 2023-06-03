@@ -33,7 +33,7 @@ border: 'border' color;
 fill: 'fill' CONST;
 
 /* Expressions */
-expression: expressionAdd | expressionMult;
+expression: expressionAdd;
 //            | expressionData
 //            | variable
 //            | constant

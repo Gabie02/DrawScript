@@ -257,6 +257,16 @@ public interface DrawScriptListener extends ParseTreeListener {
 	 */
 	void exitDimension(DrawScriptParser.DimensionContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link DrawScriptParser#background}.
+	 * @param ctx the parse tree
+	 */
+	void enterBackground(DrawScriptParser.BackgroundContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link DrawScriptParser#background}.
+	 * @param ctx the parse tree
+	 */
+	void exitBackground(DrawScriptParser.BackgroundContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link DrawScriptParser#interval}.
 	 * @param ctx the parse tree
 	 */

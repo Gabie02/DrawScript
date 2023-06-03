@@ -160,6 +160,12 @@ public interface DrawScriptVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitDimension(DrawScriptParser.DimensionContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link DrawScriptParser#background}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitBackground(DrawScriptParser.BackgroundContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link DrawScriptParser#interval}.
 	 * @param ctx the parse tree
 	 * @return the visitor result

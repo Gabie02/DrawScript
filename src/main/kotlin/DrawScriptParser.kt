@@ -3,11 +3,11 @@ import org.antlr.v4.runtime.CharStreams
 import org.antlr.v4.runtime.CommonTokenStream
 
 fun main() {
-    val testFileName = "src/test/resources/for-loop-test.txt"
+    val testFileName = "src/test/resources/parse-test.txt"
     val lexer = DrawScriptLexer(CharStreams.fromFileName(testFileName))
     val parser = DrawScriptParser(CommonTokenStream(lexer))
     val scriptObj = parser.script().toAst()
-//    println(scriptObj)
+    println(scriptObj)
     val interp  = DrawScriptInterpreter(scriptObj)
     interp.run()
 }
@@ -16,7 +16,7 @@ fun main() {
 
 fun ScriptContext.toAst(): Script {
     var dimension  = Dimension(Literal(40),Literal(40))
-    var background = Color(255,255,255)
+    var background = Background(Color(255,255,255))
     var origin = Point(Literal(0),Literal(0))
 
 //TODO
@@ -26,7 +26,7 @@ fun ScriptContext.toAst(): Script {
         if(it.prop == "dimension")
             dimension = it.value as Dimension
         if(it.prop == "background")
-            background = it.value as Color
+            background = it.value as Background
         if(it.prop == "origin")
             origin = it.value as Point
     }
@@ -50,7 +50,8 @@ fun PropertyContext.toAst() : Property =
     when {
         point() != null -> Property("origin", point().toAst())
         dimension() != null -> Property("dimension",dimension().toAst())
-        expression() != null -> Property("background", expression().expressionData().color().toAst())
+//        expression() != null -> Property("background", expression().toAst())
+        background() != null -> Property("background", background().toAst())
         else -> throw IllegalStateException("Invalid expression")
     }
 
@@ -125,7 +126,9 @@ fun PointContext.toAst() : Point {
     return Point(expression(0).toAst(), expression(1).toAst())
 }
 
-
+fun BackgroundContext.toAst() : Background {
+    return Background(expression().toAst())
+}
 
 
 fun Instruction_listContext.toAst() : List<Instruction> {

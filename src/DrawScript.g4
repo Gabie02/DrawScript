@@ -4,7 +4,7 @@ script: declaration_list WS* '---' WS* property_list WS* '---' WS* instruction_l
 declaration_list: (declaration WS*)*;
 declaration: CONST ':' expressionData;
 property_list: (property WS*)*;
-property: PROP ':'  (expression | point | dimension);
+property: PROP ':'  (background | point | dimension);
 
 /* Instruções */
 instruction_list: (instruction WS*)+;
@@ -46,6 +46,7 @@ variable: PROP;
 boolean: (expression '=' expression);
 point: '('expression ',' expression')';
 dimension: expression '~' expression;
+background: expression;
 interval: OPEN_INTERVAL expression ',' expression (OPEN_INTERVAL | CLOSE_INTERVAL);
 color: LITERAL? '|' LITERAL '|' LITERAL?;
 

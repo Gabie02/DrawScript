@@ -51,11 +51,11 @@ data class TypeError(val actual: KClass<out Data>, val expected: KClass<out Data
 
 data class Script(
     val declarations: List<Declaration>, val expressionDimension: Dimension,
-    val expressionBackground: Expression, val origin: Point, val instructions: List<Instruction>
+    val expressionBackground: Background, val origin: Point, val instructions: List<Instruction>
 ) {
 
     var initializedConstants = mutableMapOf<String, ExpressionData>()
-//    var backgroundColor: Color = Color(255, 255, 255) // Valor inicial
+//    var backgroundColor: Background = Background(Color(255, 255, 255)) // Valor inicial
 //    var canvasDimensions: Dimension = expressionDimension
     var errors = mutableListOf<ScriptError>()
 
@@ -81,14 +81,15 @@ data class Script(
         }
 
         //Verificar se o background é inicializado com uma cor
-        if (expressionBackground is ConstantRef) {
-            if (isInitialized(expressionBackground.constId)) {
-                if (initializedConstants[expressionBackground.constId] !is Color)
-                    errors.add(ConstTypeError(expressionBackground.constId))
+        if (expressionBackground.exp is ConstantRef) {
+            if (isInitialized(expressionBackground.exp.constId)) {
+                if (initializedConstants[expressionBackground.exp.constId] !is Color)
+                    errors.add(ConstTypeError(expressionBackground.exp.constId))
             } else {
-                errors.add(ConstError(expressionBackground.constId))
+                errors.add(ConstError(expressionBackground.exp.constId))
             }
-        } else if (expressionBackground !is Color) {
+
+        } else if (expressionBackground.exp !is Color) {
             errors.add(TypeError(Data::class, Color::class))
             TODO()
         }
@@ -258,6 +259,15 @@ data class Dimension(val w: Expression, val h: Expression) : Data {
         return "$w ~ $h"
     }
 }
+
+data class Background(val exp: Expression) : Data {
+
+    override fun toString(): String {
+        return "$exp"
+    }
+}
+
+
 
 sealed interface Figure : Instruction {
     val origin: Point

@@ -17,7 +17,7 @@ class DrawScriptInterpreter(private val script: Script) {
             return emptyList()
         }
         println("Script sem erros")
-        currentColor = script.expressionBackground as Color
+        currentColor = script.expressionBackground.exp as Color
         val scriptWidth = Literal(evaluate(script.expressionDimension.w))
         val scriptHeight = Literal(evaluate(script.expressionDimension.h))
         SCRIPT_DIM = Dimension(w = scriptWidth, h = scriptHeight)

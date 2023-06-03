@@ -39,9 +39,9 @@ expression: expressionAdd | expressionMult;
 //            | constant
 //            | '(' expression ')';
 
-expressionAdd: expressionMult ((PLUS|MINUS) expressionMult)*;
+expressionAdd: expressionMult ((OPERATORADD) expressionMult)*;
 
-expressionMult: expressionAtom ((TIMES|DIV|MOD) expressionAtom)*;
+expressionMult: expressionAtom ((OPERATORMULT) expressionAtom)*;
 
 expressionAtom: expressionData
                 | variable
@@ -60,6 +60,8 @@ background: expression;
 interval: OPEN_INTERVAL expression ',' expression (OPEN_INTERVAL | CLOSE_INTERVAL);
 color: LITERAL? '|' LITERAL '|' LITERAL?;
 
+OPERATORADD:(PLUS|MINUS);
+OPERATORMULT:(TIMES | DIV | MOD);
 
 PROP: [a-z]+;
 CONST: [A-Z]+;
@@ -68,8 +70,6 @@ OPEN_INTERVAL: '[';
 CLOSE_INTERVAL: ']';
 BOOL: ('true' | 'false');
 OPERATOR: (TIMES | DIV | PLUS | MINUS | MOD);
-OPERATORADD:(PLUS|MINUS);
-OPERATORMULT:(TIMES | DIV | MOD);
 TIMES: '*';
 PLUS: '+';
 DIV: '/';

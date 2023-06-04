@@ -22,7 +22,7 @@ class DrawScriptTest {
 
             // PROPERTIES
             Dimension(Literal(40), Literal(40)),
-            Color(200, 200, 200),
+            Background(Color(200, 200, 200)),
             Point(Literal(1), Literal(1)),
 
             // INSTRUCTIONS

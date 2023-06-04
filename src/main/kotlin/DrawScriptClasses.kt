@@ -125,7 +125,7 @@ data class Script(
                 }
 
                 is ForLoop -> validateInstructions(it.sequence)
-                is Border -> println("Skip de validações do border")
+                else -> return
             }
         }
     }

@@ -53,7 +53,7 @@ class DrawScriptSkeleton(private val instructions: List<Pair<Color, Figure>>, pr
 
 
 fun main() {
-    val testFileName = "src/teste.txt"
+    val testFileName = "ScriptsExemplo/Exemplo1.txt"
     val lexer = DrawScriptLexer(CharStreams.fromFileName(testFileName))
     val parser = DrawScriptParser(CommonTokenStream(lexer))
     val scriptObj = parser.script().toAst()

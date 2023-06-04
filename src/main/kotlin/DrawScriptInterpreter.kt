@@ -7,6 +7,7 @@ class DrawScriptInterpreter(private val script: Script) {
     private lateinit var currentColor: Color
 
     lateinit var SCRIPT_DIM: Dimension
+    lateinit var SCRIPT_ORIGIN: Point
 
     fun run(): List<Pair<Color, Figure>> {
         script.validate()
@@ -17,10 +18,23 @@ class DrawScriptInterpreter(private val script: Script) {
             return emptyList()
         }
         println("Script sem erros")
-        currentColor = script.expressionBackground.exp as Color
+
         val scriptWidth = Literal(evaluate(script.expressionDimension.w))
         val scriptHeight = Literal(evaluate(script.expressionDimension.h))
         SCRIPT_DIM = Dimension(w = scriptWidth, h = scriptHeight)
+
+        val scriptX = Literal(evaluate(script.origin.x))
+        val scriptY = Literal(evaluate(script.origin.y))
+        SCRIPT_ORIGIN = Point(scriptX, scriptY)
+
+        // Pintar com o background color
+        val scriptBackgroundExp = script.expressionBackground.exp
+        currentColor = when(scriptBackgroundExp) {
+            is Color -> scriptBackgroundExp
+            is ConstantRef -> initializedConstants[scriptBackgroundExp.constId] as Color
+            else -> Color(255, 255, 255)
+        }
+        paintInstructions.add(Pair(currentColor, Rectangle(SCRIPT_ORIGIN, SCRIPT_DIM)))
 
         val mainIterator = SequenceIterator(script.instructions)
         executionStack.push(mainIterator)
@@ -42,7 +56,7 @@ class DrawScriptInterpreter(private val script: Script) {
 
     private fun evaluateInstruction(inst: Instruction) {
         when (inst) {
-            is Border -> println("BORDER PLACEHOLDER")
+            is Border -> println("BORDER PLACEHOLDER")//paintInstructions.add(Pair(inst.color, Rectangle(SCRIPT_ORIGIN, SCRIPT_DIM)))
             is IfElse -> {
                 val value = evaluate(inst.guard)
                 if (value == 1) {

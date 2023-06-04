@@ -19,8 +19,6 @@ fun ScriptContext.toAst(): Script {
     var background = Background(Color(255,255,255))
     var origin = Point(Literal(0),Literal(0))
 
-//TODO
-
     val propList : List<Property> = property_list().toAst()
     propList.forEach {
         if(it.prop == "dimension")
@@ -31,7 +29,7 @@ fun ScriptContext.toAst(): Script {
             origin = it.value as Point
     }
 
-    return Script(declaration_list().toAst(), dimension, background, origin,  instruction_list().toAst())
+    return Script(declaration_list().toAst(), dimension, background, origin, instruction_list().toAst())
 }
 
 fun Declaration_listContext.toAst() : List<Declaration> {
@@ -50,45 +48,46 @@ fun PropertyContext.toAst() : Property =
     when {
         point() != null -> Property("origin", point().toAst())
         dimension() != null -> Property("dimension",dimension().toAst())
-//        expression() != null -> Property("background", expression().toAst())
         background() != null -> Property("background", background().toAst())
         else -> throw IllegalStateException("Invalid expression")
     }
 
+fun ExpressionContext.toAst() : Expression {
+    return expressionAdd().toAst()
+}
 
-fun ExpressionContext.toAst() : Expression = when {
-    expressionData() != null-> expressionData().toAst()
-    constant() != null-> constant().toAst()
-    variable() != null -> variable().toAst()
-    expression() != null && expression().isNotEmpty() -> {
-        when (expression().size) {
-            1 -> expression()[0].toAst()
-            else -> {
-//                for(e in expression()) {
-//                    println(e.text)
-//                }
-//                println("${expression()[0].children.filterIsInstance<TerminalNode>().isNotEmpty()} &&" +
-//                        "${expression()[1].children.filterIsInstance<TerminalNode>().isNotEmpty()}")
-//                if (expression()[0].children.filterIsInstance<TerminalNode>().isNotEmpty()
-//                    || expression()[1].children.filterIsInstance<TerminalNode>().isNotEmpty()
-//                ) {
-                    val left = expression()[0].toAst()
-                    val right = expression()[1].toAst()
-                    if(left is Color || right is Color)
-                        throw IllegalArgumentException("Não se podem fazer contas com cores!")
-                    BinaryExpression(
-                        left,
-                        getOperatorFor(children[1].text),
-                        right
-                    )
-//                } else if(expression()[0].children.filterIsInstance<TerminalNode>().isNotEmpty()) {
-//                    expression()[0].toAst()
-//                } else {
-//                    expression()[1].toAst()
-//                }
-            }
+fun ExpressionAddContext.toAst() : Expression {
+    if (OPERATORADD(0) != null) {
+        val operador = getOperatorFor(OPERATORADD(0).text)
+        return when (operador) {
+            Operator.PLUS -> BinaryExpression(expressionMult(0).toAst(), Operator.PLUS, expressionMult(1).toAst())
+            Operator.MINUS -> BinaryExpression(expressionMult(0).toAst(), Operator.MINUS, expressionMult(1).toAst())
+            else -> throw IllegalArgumentException("Expressão desconhecida ${this.text}")
         }
     }
+    return expressionMult(0).toAst()
+}
+
+
+fun ExpressionMultContext.toAst() : Expression {
+    if (OPERATORMULT(0) != null) {
+        val operador = getOperatorFor(OPERATORMULT(0).text)
+        return when (operador) {
+            Operator.TIMES -> BinaryExpression(expressionAtom(0).toAst(), Operator.TIMES, expressionAtom(1).toAst())
+            Operator.DIVISION -> BinaryExpression(expressionAtom(0).toAst(), Operator.DIVISION, expressionAtom(1).toAst())
+            Operator.MOD -> BinaryExpression(expressionAtom(0).toAst(), Operator.MOD, expressionAtom(1).toAst())
+            else -> throw IllegalArgumentException("Expressão desconhecida ${this.text}")
+        }
+    }
+    return expressionAtom(0).toAst()
+}
+
+
+fun ExpressionAtomContext.toAst() : Expression = when {
+    expressionData() != null -> expressionData().toAst()
+    constant() != null -> constant().toAst()
+    variable() != null -> variable().toAst()
+    expression() != null -> expression().toAst()
     else -> throw IllegalArgumentException("Expressão desconhecida ${this.text}")
 }
 

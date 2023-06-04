@@ -55,8 +55,6 @@ data class Script(
 ) {
 
     var initializedConstants = mutableMapOf<String, ExpressionData>()
-//    var backgroundColor: Background = Background(Color(255, 255, 255)) // Valor inicial
-//    var canvasDimensions: Dimension = expressionDimension
     var errors = mutableListOf<ScriptError>()
 
 

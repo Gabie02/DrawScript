@@ -1,12 +1,12 @@
-import com.ibm.icu.impl.coll.CollationRoot
 
 class DrawScriptInterpreter(private val script: Script) {
     private val initializedConstants = mutableMapOf<String, ExpressionData>()
     private val initializedVars = mutableMapOf<String, Int>()
     private val executionStack = SequenceStack()
     private val paintInstructions = mutableListOf<Pair<Color, Figure>>()
-    lateinit var currentColor: Color
-    lateinit var SCRIPT_DIM : Dimension
+    private lateinit var currentColor: Color
+
+    lateinit var SCRIPT_DIM: Dimension
 
     fun run(): List<Pair<Color, Figure>> {
         script.validate()
@@ -24,11 +24,9 @@ class DrawScriptInterpreter(private val script: Script) {
 
         val mainIterator = SequenceIterator(script.instructions)
         executionStack.push(mainIterator)
-        while (!executionStack.isEmpty) {
-//            println(executionStack.toString())
+        while (!executionStack.isEmpty)
             iterateTop()
-        }
-        println(paintInstructions)
+
         return paintInstructions
     }
 
@@ -46,9 +44,7 @@ class DrawScriptInterpreter(private val script: Script) {
         when (inst) {
             is Border -> println("BORDER PLACEHOLDER")
             is IfElse -> {
-//                println("--- IF ---")
                 val value = evaluate(inst.guard)
-//                println("Valor da guard: $value")
                 if (value == 1) {
                     val newIter = SequenceIterator(inst.sequence)
                     executionStack.push(newIter)
@@ -69,7 +65,6 @@ class DrawScriptInterpreter(private val script: Script) {
             }
 
             is ForLoop -> {
-//                println("--- FOR LOOP ---")
                 val variableId = inst.incrementVar.varId
                 val start = evaluate(inst.interval.start)
                 val end =
@@ -79,13 +74,11 @@ class DrawScriptInterpreter(private val script: Script) {
                 var value = initializedVars[variableId]!!
                 while (value < end) {
                     value = initializedVars[variableId]!!
-//                    println("$variableId = $value")
                     val newIter = SequenceIterator(inst.sequence)
                     executionStack.push(newIter)
                     iterateTop()
                     initializedVars[variableId] = (value + 1)
                 }
-//                println("--- FIM FOR LOOP ---")
 
             }
         }
@@ -105,7 +98,8 @@ class DrawScriptInterpreter(private val script: Script) {
             }
 
             is Line -> {
-                val destination = Point(Literal(evaluate(figure.destination.x)), Literal(evaluate(figure.destination.y)))
+                val destination =
+                    Point(Literal(evaluate(figure.destination.x)), Literal(evaluate(figure.destination.y)))
                 Line(origin, destination)
             }
 
@@ -134,16 +128,12 @@ class DrawScriptInterpreter(private val script: Script) {
             else -> throw IllegalArgumentException("Expressão não válida $exp")
         }
 
-    private fun operation(left: Int, oper: Operator, right: Int): Int {
-        val res = when (oper) {
-            Operator.PLUS -> left + right
-            Operator.MINUS -> left - right
-            Operator.TIMES -> left * right
-            Operator.DIVISION -> left / right
-            Operator.MOD -> left % right
-        }
-//        println("$left $oper $right = $res")
-        return res
+    private fun operation(left: Int, oper: Operator, right: Int): Int = when (oper) {
+        Operator.PLUS -> left + right
+        Operator.MINUS -> left - right
+        Operator.TIMES -> left * right
+        Operator.DIVISION -> left / right
+        Operator.MOD -> left % right
     }
 
 

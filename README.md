@@ -68,7 +68,7 @@ for l in [0,N[ {
 ### Instruções
 | Nome     | Argumentos                                         | Exemplo                                                                                                                                   |
 |----------|----------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------|
-| fill     | - Color ou Constante                               | `fill 250&#124;130&#124;60` ou `fill GRAY`                                                                                                |                                                                                                         |
+| fill     | - Color ou Constante                               | `fill 250`&#124;`130`&#124;`60` ou `fill GRAY`                                                                                            |                                                                                                         |
 | for-loop | - variável com o nome em minúsculo<br/> - Interval | `for i in [0, 10[ {`<br/> `fill BLACK`<br/>`...`<br/>`}`                                                                                  |
 | if-else  | - Bool                                             | `if i % 2 = 0 {`<br/> `fill WHITE`<br/> `}`  <br/>ou<br/>  `if i % 2 = 0 {`<br/> `fill WHITE`<br/> `} else {` <br/> `fill BLACK`<br/> `}` |
 

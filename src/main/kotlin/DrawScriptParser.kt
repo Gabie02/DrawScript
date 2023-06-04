@@ -1,6 +1,7 @@
 import DrawScriptParser.*
 import org.antlr.v4.runtime.CharStreams
 import org.antlr.v4.runtime.CommonTokenStream
+import org.antlr.v4.runtime.tree.TerminalNode
 
 fun main() {
     val testFileName = "src/test/resources/parse-test.txt"
@@ -58,14 +59,22 @@ fun ExpressionContext.toAst() : Expression {
 
 fun ExpressionAddContext.toAst() : Expression {
     if (OPERATORADD(0) != null) {
-        val operador = getOperatorFor(OPERATORADD(0).text)
-        return when (operador) {
-            Operator.PLUS -> BinaryExpression(expressionMult(0).toAst(), Operator.PLUS, expressionMult(1).toAst())
-            Operator.MINUS -> BinaryExpression(expressionMult(0).toAst(), Operator.MINUS, expressionMult(1).toAst())
-            else -> throw IllegalArgumentException("Expressão desconhecida ${this.text}")
-        }
+        return expressionMult().toAst(OPERATORADD())
     }
     return expressionMult(0).toAst()
+}
+fun List<ExpressionMultContext>.toAst(oper: List<TerminalNode>) : Expression {
+    when(size) {
+        1 -> return this[0].toAst()
+        else -> {
+            val operador = getOperatorFor(oper[0].text)
+            return when (operador) {
+                Operator.PLUS -> BinaryExpression(this[0].toAst(), operador, this.subList(1, size).toAst(oper.subList(1, oper.size)))
+                Operator.MINUS -> BinaryExpression(this[0].toAst(), operador, this.subList(1, size).toAst(oper.subList(1, oper.size)))
+                else -> throw IllegalArgumentException("Expressão desconhecida $this")
+            }
+        }
+    }
 }
 
 

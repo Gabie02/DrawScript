@@ -12,13 +12,13 @@
 ---
 ## Estrutura do ficheiro
 
-> O script é dividido em 3 secções obrigatórias que são separadas por 3 hifens `---`. 
-> - Na primeira seção serão declaradas todas as constantes, obrigatóriamente em letras maiúsculas, seguido de dois pontos 
+> O script é dividido em 3 secções obrigatórias separadas por 3 hifens `---`. 
+> - Na primeira secção serão declaradas todas as constantes, obrigatóriamente em letras maiúsculas, seguido de dois pontos 
 > e o seu respetivo valor (Literal ou Color) `WHITE: |255|`, `SIDE: 40`.
-> - Na segunda seção há a opção de determinar as propriedades iniciais da figura: **background**, **dimension** e **origin**; 
+> - Na segunda secção há a opção de determinar as propriedades iniciais da figura: **background**, **dimension** e **origin**; 
 > que representam a cor de fundo, dimensão da figura e origem em relação à janela, respetivamente. (É possível determinar propriedades
 > utilizando expressões aritméticas e constantes.)
-> - Por último, na terceira seção, é possível utilizar as instruções abaixo definidas, pintar figuras e fazer expressões aritméticas
+> - Por último, na terceira secção, é possível utilizar as instruções abaixo definidas, pintar figuras e fazer expressões aritméticas
 > com o auxílio de constantes e variáveis.
 > 
  #### Script exemplo
@@ -66,11 +66,12 @@ for l in [0,N[ {
 | %        |
 
 ### Instruções
-| Nome     | Argumentos                                         | Exemplo                                                                                                                                   |
-|----------|----------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------|
-| fill     | - Color ou Constante                               | `fill 250`&#124;`130`&#124;`60` ou `fill GRAY`                                                                                            |                                                                                                         |
-| for-loop | - variável com o nome em minúsculo<br/> - Interval | `for i in [0, 10[ {`<br/> `fill BLACK`<br/>`...`<br/>`}`                                                                                  |
-| if-else  | - Bool                                             | `if i % 2 = 0 {`<br/> `fill WHITE`<br/> `}`  <br/>ou<br/>  `if i % 2 = 0 {`<br/> `fill WHITE`<br/> `} else {` <br/> `fill BLACK`<br/> `}` |
+| Nome     | Argumentos                                         | Exemplo                                                                                                                                   | Explicação                        |
+|----------|----------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------|
+| fill     | - Color ou Constante                               | `fill 250`&#124;`130`&#124;`60` ou `fill GRAY`                                                                                            | Determina a cor da próxima figura |                                                                                              
+| border   | - Figura                                           | `border square (15, 30) SIDE`                                                                                                             | Desenha apenas a borda figura     |
+| for-loop | - variável com o nome em minúsculo<br/> - Interval | `for i in [0, 10[ {`<br/> `fill BLACK`<br/>`...`<br/>`}`                                                                                  | for-loop comum                    |
+| if-else  | - Bool                                             | `if i % 2 = 0 {`<br/> `fill WHITE`<br/> `}`  <br/>ou<br/>  `if i % 2 = 0 {`<br/> `fill WHITE`<br/> `} else {` <br/> `fill BLACK`<br/> `}` | if-else comum                     |
 
 ### Figuras
 | Nome      | Argumentos                                           | Exemplo                 |

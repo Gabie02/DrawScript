@@ -2,13 +2,13 @@ class DrawScriptInterpreter(private val script: Script) {
     private val initializedConstants = mutableMapOf<String, ExpressionData>()
     private val initializedVars = mutableMapOf<String, Int>()
     private val executionStack = SequenceStack()
-    private val paintInstructions = mutableListOf<Pair<Color, Figure>>()
+    private val paintInstructions = mutableListOf<Triple<Color, Figure, Boolean>>()
     private lateinit var currentColor: Color
 
     lateinit var SCRIPT_DIM: Dimension
     lateinit var SCRIPT_ORIGIN: Point
 
-    fun run(): List<Pair<Color, Figure>> {
+    fun run(): List<Triple<Color, Figure, Boolean>> {
         script.validate()
         initializedConstants.putAll(script.initializedConstants)
         val sintaxErrors = script.errors
@@ -33,7 +33,7 @@ class DrawScriptInterpreter(private val script: Script) {
             is ConstantRef -> initializedConstants[scriptBackgroundExp.constId] as Color
             else -> Color(255, 255, 255)
         }
-        paintInstructions.add(Pair(currentColor, Rectangle(SCRIPT_ORIGIN, SCRIPT_DIM)))
+        paintInstructions.add(Triple(currentColor, Rectangle(SCRIPT_ORIGIN, SCRIPT_DIM), false))
 
         val mainIterator = SequenceIterator(script.instructions)
         executionStack.push(mainIterator)
@@ -55,7 +55,7 @@ class DrawScriptInterpreter(private val script: Script) {
 
     private fun evaluateInstruction(inst: Instruction) {
         when (inst) {
-            is Border -> println("BORDER PLACEHOLDER")//paintInstructions.add(Pair(inst.color, Rectangle(SCRIPT_ORIGIN, SCRIPT_DIM)))
+            is Border -> paintInstructions.add(Triple(currentColor, resolveFigure(inst.figure), true))
             is IfElse -> {
                 val value = evaluate(inst.guard)
                 if (value == 1) {
@@ -69,7 +69,7 @@ class DrawScriptInterpreter(private val script: Script) {
                 }
             }
 
-            is Figure -> paintInstructions.add(Pair(currentColor, resolveFigure(inst)))
+            is Figure -> paintInstructions.add(Triple(currentColor, resolveFigure(inst), false))
             is Fill -> {
                 val constValue = initializedConstants[inst.varId]
                 if (constValue is Color)

@@ -297,10 +297,10 @@ data class Line(override val origin: Point, val destination: Point) : Figure {
     }
 }
 
-data class Border(val color: Color) : Instruction {
+data class Border(val figure: Figure) : Instruction {
 
     override fun toString(): String {
-        return "border $color"
+        return "border $figure"
     }
 }
 

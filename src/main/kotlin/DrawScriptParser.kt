@@ -191,7 +191,7 @@ fun ElipseContext.toAst() : Elipse = Elipse(point().toAst(), dimension().toAst()
 
 fun LineContext.toAst() : Line = Line(point()[0].toAst(), point()[1].toAst())
 
-fun BorderContext.toAst() : Border = Border(color().toAst())
+fun BorderContext.toAst() : Border = Border(figure().toAst())
 
 
 

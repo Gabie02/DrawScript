@@ -29,7 +29,7 @@ square: 'square' point expression;
 circle: 'circle' point expression;
 elipse: 'elipse' point dimension;
 line: 'line' point point;
-border: 'border' color;
+border: 'border' figure;
 fill: 'fill' CONST;
 
 /* Expressions */

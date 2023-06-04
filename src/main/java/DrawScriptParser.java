@@ -1278,8 +1278,8 @@ public class DrawScriptParser extends Parser {
 
 	@SuppressWarnings("CheckReturnValue")
 	public static class BorderContext extends ParserRuleContext {
-		public ColorContext color() {
-			return getRuleContext(ColorContext.class,0);
+		public FigureContext figure() {
+			return getRuleContext(FigureContext.class,0);
 		}
 		public BorderContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -1309,7 +1309,7 @@ public class DrawScriptParser extends Parser {
 			setState(205);
 			match(T__13);
 			setState(206);
-			color();
+			figure();
 			}
 		}
 		catch (RecognitionException re) {
@@ -2266,10 +2266,10 @@ public class DrawScriptParser extends Parser {
 		"\u00c8\u00036\u001b\u0000\u00c8\u001d\u0001\u0000\u0000\u0000\u00c9\u00ca"+
 		"\u0005\r\u0000\u0000\u00ca\u00cb\u00034\u001a\u0000\u00cb\u00cc\u0003"+
 		"4\u001a\u0000\u00cc\u001f\u0001\u0000\u0000\u0000\u00cd\u00ce\u0005\u000e"+
-		"\u0000\u0000\u00ce\u00cf\u0003<\u001e\u0000\u00cf!\u0001\u0000\u0000\u0000"+
-		"\u00d0\u00d1\u0005\u000f\u0000\u0000\u00d1\u00d2\u0005\u0019\u0000\u0000"+
-		"\u00d2#\u0001\u0000\u0000\u0000\u00d3\u00d4\u0003&\u0013\u0000\u00d4%"+
-		"\u0001\u0000\u0000\u0000\u00d5\u00da\u0003(\u0014\u0000\u00d6\u00d7\u0005"+
+		"\u0000\u0000\u00ce\u00cf\u0003\u0014\n\u0000\u00cf!\u0001\u0000\u0000"+
+		"\u0000\u00d0\u00d1\u0005\u000f\u0000\u0000\u00d1\u00d2\u0005\u0019\u0000"+
+		"\u0000\u00d2#\u0001\u0000\u0000\u0000\u00d3\u00d4\u0003&\u0013\u0000\u00d4"+
+		"%\u0001\u0000\u0000\u0000\u00d5\u00da\u0003(\u0014\u0000\u00d6\u00d7\u0005"+
 		"\u0016\u0000\u0000\u00d7\u00d9\u0003(\u0014\u0000\u00d8\u00d6\u0001\u0000"+
 		"\u0000\u0000\u00d9\u00dc\u0001\u0000\u0000\u0000\u00da\u00d8\u0001\u0000"+
 		"\u0000\u0000\u00da\u00db\u0001\u0000\u0000\u0000\u00db\'\u0001\u0000\u0000"+

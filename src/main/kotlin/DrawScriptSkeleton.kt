@@ -1,11 +1,13 @@
 import org.antlr.v4.runtime.CharStreams
 import org.antlr.v4.runtime.CommonTokenStream
+import java.awt.BorderLayout
+import java.awt.Dimension
 import java.awt.Graphics
 import java.awt.Graphics2D
 import javax.swing.JComponent
 import javax.swing.JFrame
 
-class DrawScriptSkeleton(val instructions: List<Pair<Color, Figure>>) : JComponent() {
+class DrawScriptSkeleton(private val instructions: List<Pair<Color, Figure>>, private val windowWidth: Int, private val windowHeight: Int) : JComponent() {
     override fun paintComponent(graphics: Graphics) {
         val g = graphics as Graphics2D
         instructions.forEach { inst ->
@@ -37,11 +39,16 @@ class DrawScriptSkeleton(val instructions: List<Pair<Color, Figure>>) : JCompone
             is Rectangle -> {
                 val w = (s.dim.w as Literal).value
                 val h = (s.dim.h as Literal).value
-                println("Drawing square on ($x, $y): $w, $h")
                 g.fillRect(x, y, w, h)
             }
         }
     }
+
+    override fun getPreferredSize(): Dimension {
+        return Dimension(windowWidth, windowHeight)
+    }
+
+
 }
 
 
@@ -50,17 +57,21 @@ fun main() {
     val lexer = DrawScriptLexer(CharStreams.fromFileName(testFileName))
     val parser = DrawScriptParser(CommonTokenStream(lexer))
     val scriptObj = parser.script().toAst()
-//    println(scriptObj)
+
     val interp = DrawScriptInterpreter(scriptObj)
     val paintInstructions = interp.run()
+
     val frame = JFrame("Draw")
-
     frame.defaultCloseOperation = JFrame.EXIT_ON_CLOSE
-    val windowWidth = interp.SCRIPT_DIM.w as Literal
-    val windowHeight = interp.SCRIPT_DIM.h as Literal
-    println("$windowWidth by $windowHeight")
-    frame.setSize(windowWidth.value, windowHeight.value)
+    val windowWidth = (interp.SCRIPT_DIM.w as Literal).value
+    val windowHeight = (interp.SCRIPT_DIM.h as Literal).value
 
-    frame.add(DrawScriptSkeleton(paintInstructions))
+    val drawScriptSkeleton = DrawScriptSkeleton(paintInstructions, windowWidth, windowHeight)
+    drawScriptSkeleton.isVisible = true
+
+    frame.add(drawScriptSkeleton, BorderLayout.CENTER)
+    frame.setSize(windowWidth, windowHeight)
+    frame.setLocationRelativeTo(null)
+    frame.pack()
     frame.isVisible = true
 }

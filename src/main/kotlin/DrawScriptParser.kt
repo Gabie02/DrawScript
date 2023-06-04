@@ -58,37 +58,39 @@ fun ExpressionContext.toAst() : Expression {
 }
 
 fun ExpressionAddContext.toAst() : Expression {
+    fun List<ExpressionMultContext>.toAst(oper: List<TerminalNode>) : Expression {
+        return when(size) {
+            1 -> this[0].toAst()
+            else -> {
+                val operador = getOperatorFor(oper[0].text)
+                BinaryExpression(this[0].toAst(), operador, this.subList(1, size).toAst(oper.subList(1, oper.size)))
+            }
+        }
+    }
+
     if (OPERATORADD(0) != null) {
         return expressionMult().toAst(OPERATORADD())
     }
     return expressionMult(0).toAst()
 }
-fun List<ExpressionMultContext>.toAst(oper: List<TerminalNode>) : Expression {
-    return when(size) {
-        1 -> this[0].toAst()
-        else -> {
-            val operador = getOperatorFor(oper[0].text)
-            BinaryExpression(this[0].toAst(), operador, this.subList(1, size).toAst(oper.subList(1, oper.size)))
-        }
-    }
-}
+
 
 
 fun ExpressionMultContext.toAst() : Expression {
+    fun List<ExpressionAtomContext>.toAst(oper: List<TerminalNode>) : Expression {
+        return when(size) {
+            1 -> this[0].toAst()
+            else -> {
+                val operador = getOperatorFor(oper[0].text)
+                BinaryExpression(this[0].toAst(), operador, this.subList(1, size).toAst(oper.subList(1, oper.size)))
+            }
+        }
+    }
+
     if (OPERATORMULT(0) != null) {
         return expressionAtom().toAst(OPERATORMULT())
     }
     return expressionAtom(0).toAst()
-}
-
-fun List<ExpressionAtomContext>.toAst(oper: List<TerminalNode>) : Expression {
-    return when(size) {
-        1 -> this[0].toAst()
-        else -> {
-            val operador = getOperatorFor(oper[0].text)
-            BinaryExpression(this[0].toAst(), operador, this.subList(1, size).toAst(oper.subList(1, oper.size)))
-        }
-    }
 }
 
 fun ExpressionAtomContext.toAst() : Expression = when {

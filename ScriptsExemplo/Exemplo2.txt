@@ -1,6 +1,7 @@
 DISTANCE: 20
 BLUE: 0|0|255
 PURPLE: 102|0|204
+RED: 255|0|0
 LINEY: 70
 OFFSET: 30
 ---
@@ -10,8 +11,10 @@ background: 204|229|255
 fill BLUE
 circle (OFFSET, OFFSET) DISTANCE
 circle (DISTANCE * 2 + OFFSET, OFFSET) DISTANCE
+fill RED
+elipse (OFFSET + DISTANCE * 2 - 5, DISTANCE * 4 - 5) 10 ~ 15
 fill PURPLE
 // Fazer uma linha com 5 de grossura
 for i in [0, 5[ {
-    line (OFFSET, 100 + i) (OFFSET + LINEY + 10, 100 + i)
+    line (OFFSET, OFFSET + LINEY + i) (OFFSET + LINEY + 10, OFFSET + LINEY + i)
 }

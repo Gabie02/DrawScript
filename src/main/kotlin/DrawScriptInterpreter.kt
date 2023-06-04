@@ -1,4 +1,3 @@
-
 class DrawScriptInterpreter(private val script: Script) {
     private val initializedConstants = mutableMapOf<String, ExpressionData>()
     private val initializedVars = mutableMapOf<String, Int>()
@@ -29,7 +28,7 @@ class DrawScriptInterpreter(private val script: Script) {
 
         // Pintar com o background color
         val scriptBackgroundExp = script.expressionBackground.exp
-        currentColor = when(scriptBackgroundExp) {
+        currentColor = when (scriptBackgroundExp) {
             is Color -> scriptBackgroundExp
             is ConstantRef -> initializedConstants[scriptBackgroundExp.constId] as Color
             else -> Color(255, 255, 255)
@@ -79,7 +78,6 @@ class DrawScriptInterpreter(private val script: Script) {
             }
 
             is ForLoop -> {
-                println("--- FOR LOOP ---")
                 val variableId = inst.incrementVar.varId
                 val start = evaluate(inst.interval.start)
                 val end =
@@ -87,10 +85,8 @@ class DrawScriptInterpreter(private val script: Script) {
                 initializedVars[variableId] = start
 
                 var value = initializedVars[variableId]!!
-                println(initializedVars)
                 while (value < end) {
                     value = initializedVars[variableId]!!
-                    println("$variableId = $value")
                     val newIter = SequenceIterator(inst.sequence)
                     executionStack.push(newIter)
                     iterateTop()
@@ -141,32 +137,20 @@ class DrawScriptInterpreter(private val script: Script) {
                     value.value
                 else throw IllegalArgumentException("Não é possível avaliar esta constante (é cor)")
             }
-
-            is BinaryExpression -> {
-                println("Binary expression $exp")
-                println(exp.right.javaClass)
-                operation(evaluate(exp.left), exp.operator, evaluate(exp.right))
-            }
+            is BinaryExpression -> operation(evaluate(exp.left), exp.operator, evaluate(exp.right))
             is Bool -> if (evaluate(exp.left) == evaluate(exp.right)) 1 else 0
-            is Variable -> {
-                println(" -------------------------------------- A avaliar a variável ${exp.varId} = ${initializedVars[exp.varId]!!}")
-                initializedVars[exp.varId]!!
-            }
+            is Variable -> initializedVars[exp.varId]!!
             else -> throw IllegalArgumentException("Expressão não válida $exp")
         }
 
-    private fun operation(left: Int, oper: Operator, right: Int): Int {
-        val res =  when (oper) {
-            Operator.PLUS -> left + right
-            Operator.MINUS -> left - right
-            Operator.TIMES -> left * right
-            Operator.DIVISION -> left / right
-            Operator.MOD -> left % right
-        }
-        println("$left $oper $right = $res")
-        return res
+    private fun operation(left: Int, oper: Operator, right: Int): Int = when (oper) {
+        Operator.PLUS -> left + right
+        Operator.MINUS -> left - right
+        Operator.TIMES -> left * right
+        Operator.DIVISION -> left / right
+        Operator.MOD -> left % right
     }
-
-
-
 }
+
+
+

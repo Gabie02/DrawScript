@@ -1,0 +1,17 @@
+DISTANCE: 20
+BLUE: 0|0|255
+PURPLE: 102|0|204
+LINEY: 70
+OFFSET: 30
+---
+dimension: 200 ~ 200
+background: 204|229|255
+---
+fill BLUE
+circle (OFFSET, OFFSET) DISTANCE
+circle (DISTANCE * 2 + OFFSET, OFFSET) DISTANCE
+fill PURPLE
+// Fazer uma linha com 5 de grossura
+for i in [0, 5[ {
+    line (OFFSET, 100 + i) (OFFSET + LINEY + 10, 100 + i)
+}

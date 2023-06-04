@@ -62,7 +62,7 @@ data class Script(
         return ("${declarations.joinToString("\n") { it.toString() }}\n---" +
                 "\ndimension: $expressionDimension" +
                 "\nbackground: $expressionBackground" +
-                "\norigin: $origin\n---\n$instructions")
+                "\norigin: $origin\n---\n${instructions.joinToString(separator = "\n")}")
             .filterNot { it == '[' || it == ']' }
     }
 

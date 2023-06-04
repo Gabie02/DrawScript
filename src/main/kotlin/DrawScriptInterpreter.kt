@@ -79,6 +79,7 @@ class DrawScriptInterpreter(private val script: Script) {
             }
 
             is ForLoop -> {
+                println("--- FOR LOOP ---")
                 val variableId = inst.incrementVar.varId
                 val start = evaluate(inst.interval.start)
                 val end =
@@ -86,8 +87,10 @@ class DrawScriptInterpreter(private val script: Script) {
                 initializedVars[variableId] = start
 
                 var value = initializedVars[variableId]!!
+                println(initializedVars)
                 while (value < end) {
                     value = initializedVars[variableId]!!
+                    println("$variableId = $value")
                     val newIter = SequenceIterator(inst.sequence)
                     executionStack.push(newIter)
                     iterateTop()
@@ -99,7 +102,9 @@ class DrawScriptInterpreter(private val script: Script) {
     }
 
     private fun resolveFigure(figure: Figure): Figure {
-        val origin = Point(Literal(evaluate(figure.origin.x)), Literal(evaluate(figure.origin.y)))
+        val x = Literal(evaluate(BinaryExpression(figure.origin.x, Operator.PLUS, SCRIPT_ORIGIN.x)))
+        val y = Literal(evaluate(BinaryExpression(figure.origin.y, Operator.PLUS, SCRIPT_ORIGIN.y)))
+        val origin = Point(x, y)
         val resolvedFigure: Figure = when (figure) {
             is Circle -> {
                 val radius = Literal(evaluate(figure.radius))
@@ -112,8 +117,9 @@ class DrawScriptInterpreter(private val script: Script) {
             }
 
             is Line -> {
-                val destination =
-                    Point(Literal(evaluate(figure.destination.x)), Literal(evaluate(figure.destination.y)))
+                val dx = Literal(evaluate(BinaryExpression(figure.destination.x, Operator.PLUS, SCRIPT_ORIGIN.x)))
+                val dy = Literal(evaluate(BinaryExpression(figure.destination.y, Operator.PLUS, SCRIPT_ORIGIN.y)))
+                val destination = Point(dx, dy)
                 Line(origin, destination)
             }
 
@@ -136,19 +142,31 @@ class DrawScriptInterpreter(private val script: Script) {
                 else throw IllegalArgumentException("Não é possível avaliar esta constante (é cor)")
             }
 
-            is BinaryExpression -> operation(evaluate(exp.left), exp.operator, evaluate(exp.right))
+            is BinaryExpression -> {
+                println("Binary expression $exp")
+                println(exp.right.javaClass)
+                operation(evaluate(exp.left), exp.operator, evaluate(exp.right))
+            }
             is Bool -> if (evaluate(exp.left) == evaluate(exp.right)) 1 else 0
-            is Variable -> initializedVars[exp.varId]!!
+            is Variable -> {
+                println(" -------------------------------------- A avaliar a variável ${exp.varId} = ${initializedVars[exp.varId]!!}")
+                initializedVars[exp.varId]!!
+            }
             else -> throw IllegalArgumentException("Expressão não válida $exp")
         }
 
-    private fun operation(left: Int, oper: Operator, right: Int): Int = when (oper) {
-        Operator.PLUS -> left + right
-        Operator.MINUS -> left - right
-        Operator.TIMES -> left * right
-        Operator.DIVISION -> left / right
-        Operator.MOD -> left % right
+    private fun operation(left: Int, oper: Operator, right: Int): Int {
+        val res =  when (oper) {
+            Operator.PLUS -> left + right
+            Operator.MINUS -> left - right
+            Operator.TIMES -> left * right
+            Operator.DIVISION -> left / right
+            Operator.MOD -> left % right
+        }
+        println("$left $oper $right = $res")
+        return res
     }
+
 
 
 }

@@ -160,8 +160,14 @@ fun IfElseContext.toAst() : IfElse = when {
     else -> IfElse(boolean_().toAst(), instruction_list().toAst(), emptyList())
 }
 
-fun BooleanContext.toAst() : Bool = Bool(expression()[0].toAst(), expression()[1].toAst())
+fun BooleanContext.toAst() : Bool = Bool(expression()[0].toAst(), getLogicOperatorFor(LOGICOPERATOR().text), expression()[1].toAst())
 
+fun getLogicOperatorFor(text: String?): LogicOperator = when (text) {
+    "=" -> LogicOperator.EQUAL
+    "!=" -> LogicOperator.DIF
+    "<" -> LogicOperator.LESS
+    else -> LogicOperator.GREATER
+}
 
 fun IntervalContext.toAst() : Interval = Interval(expression()[0].toAst(), expression()[1].toAst(), CLOSE_INTERVAL() == null)
 

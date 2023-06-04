@@ -34,10 +34,6 @@ fill: 'fill' CONST;
 
 /* Expressions */
 expression: expressionAdd;
-//            | expressionData
-//            | variable
-//            | constant
-//            | '(' expression ')';
 
 expressionAdd: expressionMult ((OPERATORADD) expressionMult)*;
 
@@ -53,7 +49,7 @@ expressionData: LITERAL
 constant: CONST;
 variable: PROP;
     // Tipos de dados
-boolean: (expression '=' expression);
+boolean: (expression LOGICOPERATOR expression);
 point: '('expression ',' expression')';
 dimension: expression '~' expression;
 background: expression;
@@ -62,6 +58,7 @@ color: LITERAL? '|' LITERAL '|' LITERAL?;
 
 OPERATORADD:(PLUS|MINUS);
 OPERATORMULT:(TIMES | DIV | MOD);
+LOGICOPERATOR:(EQUAL | DIF | LESS | GREATER);
 
 PROP: [a-z]+;
 CONST: [A-Z]+;
@@ -75,6 +72,10 @@ PLUS: '+';
 DIV: '/';
 MINUS: '-';
 MOD: '%';
+EQUAL: '=';
+DIF: '!=';
+LESS: '<';
+GREATER: '>';
 
 COMMENT: '//'~[\r\n]* -> skip;
 WS : [ \t\r\n]+ -> skip ; // skip spaces, tabs, newlines

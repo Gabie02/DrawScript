@@ -54,16 +54,12 @@ for l in [0,N[ {
 | Dimension | 500 ~ 500                                                                  |
 | Interval  | [0, 10[<br/> [50, 60]                                                      |
 | Color     | 255&#124;0&#124;0 <br/>&#124;120&#124; = 120&#124;120&#124;120  (cinzento) |
-| Bool      | i + 1 = 30                                                                 |
+| Bool      | i + 1 = 30  <br/> i < N                                                    |
 
 ### Operadores
-| Operador |
-|----------|
-| +        |
-| -        |
-| /        |
-| *        |
-| %        |
+| Aritméticos | +   | -   | /   | *   | %   |
+|-------------|-----|-----|-----|-----|-----|
+| **Lógicos** | =   | !=  | <   | \>  |     |
 
 ### Instruções
 | Nome     | Argumentos                                         | Exemplo                                                                                                                                   | Explicação                        |

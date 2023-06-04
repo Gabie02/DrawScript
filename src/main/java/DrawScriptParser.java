@@ -18,10 +18,10 @@ public class DrawScriptParser extends Parser {
 	public static final int
 		T__0=1, T__1=2, T__2=3, T__3=4, T__4=5, T__5=6, T__6=7, T__7=8, T__8=9, 
 		T__9=10, T__10=11, T__11=12, T__12=13, T__13=14, T__14=15, T__15=16, T__16=17, 
-		T__17=18, T__18=19, T__19=20, T__20=21, OPERATORADD=22, OPERATORMULT=23, 
+		T__17=18, T__18=19, T__19=20, OPERATORADD=21, OPERATORMULT=22, LOGICOPERATOR=23, 
 		PROP=24, CONST=25, LITERAL=26, OPEN_INTERVAL=27, CLOSE_INTERVAL=28, BOOL=29, 
-		OPERATOR=30, TIMES=31, PLUS=32, DIV=33, MINUS=34, MOD=35, COMMENT=36, 
-		WS=37;
+		OPERATOR=30, TIMES=31, PLUS=32, DIV=33, MINUS=34, MOD=35, EQUAL=36, DIF=37, 
+		LESS=38, GREATER=39, COMMENT=40, WS=41;
 	public static final int
 		RULE_script = 0, RULE_declaration_list = 1, RULE_declaration = 2, RULE_property_list = 3, 
 		RULE_property = 4, RULE_instruction_list = 5, RULE_instruction = 6, RULE_for = 7, 
@@ -47,18 +47,19 @@ public class DrawScriptParser extends Parser {
 		return new String[] {
 			null, "'---'", "':'", "'for'", "'in'", "'{'", "'}'", "'if'", "'else {'", 
 			"'rectangle'", "'square'", "'circle'", "'elipse'", "'line'", "'border'", 
-			"'fill'", "'('", "')'", "'='", "','", "'~'", "'|'", null, null, null, 
-			null, null, "'['", "']'", null, null, "'*'", "'+'", "'/'", "'-'", "'%'"
+			"'fill'", "'('", "')'", "','", "'~'", "'|'", null, null, null, null, 
+			null, null, "'['", "']'", null, null, "'*'", "'+'", "'/'", "'-'", "'%'", 
+			"'='", "'!='", "'<'", "'>'"
 		};
 	}
 	private static final String[] _LITERAL_NAMES = makeLiteralNames();
 	private static String[] makeSymbolicNames() {
 		return new String[] {
 			null, null, null, null, null, null, null, null, null, null, null, null, 
-			null, null, null, null, null, null, null, null, null, null, "OPERATORADD", 
-			"OPERATORMULT", "PROP", "CONST", "LITERAL", "OPEN_INTERVAL", "CLOSE_INTERVAL", 
-			"BOOL", "OPERATOR", "TIMES", "PLUS", "DIV", "MINUS", "MOD", "COMMENT", 
-			"WS"
+			null, null, null, null, null, null, null, null, null, "OPERATORADD", 
+			"OPERATORMULT", "LOGICOPERATOR", "PROP", "CONST", "LITERAL", "OPEN_INTERVAL", 
+			"CLOSE_INTERVAL", "BOOL", "OPERATOR", "TIMES", "PLUS", "DIV", "MINUS", 
+			"MOD", "EQUAL", "DIF", "LESS", "GREATER", "COMMENT", "WS"
 		};
 	}
 	private static final String[] _SYMBOLIC_NAMES = makeSymbolicNames();
@@ -1595,7 +1596,7 @@ public class DrawScriptParser extends Parser {
 			setState(236);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
-			case T__20:
+			case T__19:
 			case LITERAL:
 				enterOuterAlt(_localctx, 1);
 				{
@@ -1796,6 +1797,7 @@ public class DrawScriptParser extends Parser {
 		public ExpressionContext expression(int i) {
 			return getRuleContext(ExpressionContext.class,i);
 		}
+		public TerminalNode LOGICOPERATOR() { return getToken(DrawScriptParser.LOGICOPERATOR, 0); }
 		public BooleanContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -1825,7 +1827,7 @@ public class DrawScriptParser extends Parser {
 			setState(246);
 			expression();
 			setState(247);
-			match(T__17);
+			match(LOGICOPERATOR);
 			setState(248);
 			expression();
 			}
@@ -1880,7 +1882,7 @@ public class DrawScriptParser extends Parser {
 			setState(251);
 			expression();
 			setState(252);
-			match(T__18);
+			match(T__17);
 			setState(253);
 			expression();
 			setState(254);
@@ -1934,7 +1936,7 @@ public class DrawScriptParser extends Parser {
 			setState(256);
 			expression();
 			setState(257);
-			match(T__19);
+			match(T__18);
 			setState(258);
 			expression();
 			}
@@ -2039,7 +2041,7 @@ public class DrawScriptParser extends Parser {
 			setState(263);
 			expression();
 			setState(264);
-			match(T__18);
+			match(T__17);
 			setState(265);
 			expression();
 			setState(266);
@@ -2108,11 +2110,11 @@ public class DrawScriptParser extends Parser {
 			}
 
 			setState(271);
-			match(T__20);
+			match(T__19);
 			setState(272);
 			match(LITERAL);
 			setState(273);
-			match(T__20);
+			match(T__19);
 			setState(275);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
@@ -2137,7 +2139,7 @@ public class DrawScriptParser extends Parser {
 	}
 
 	public static final String _serializedATN =
-		"\u0004\u0001%\u0116\u0002\u0000\u0007\u0000\u0002\u0001\u0007\u0001\u0002"+
+		"\u0004\u0001)\u0116\u0002\u0000\u0007\u0000\u0002\u0001\u0007\u0001\u0002"+
 		"\u0002\u0007\u0002\u0002\u0003\u0007\u0003\u0002\u0004\u0007\u0004\u0002"+
 		"\u0005\u0007\u0005\u0002\u0006\u0007\u0006\u0002\u0007\u0007\u0007\u0002"+
 		"\b\u0007\b\u0002\t\u0007\t\u0002\n\u0007\n\u0002\u000b\u0007\u000b\u0002"+
@@ -2196,25 +2198,25 @@ public class DrawScriptParser extends Parser {
 		"2\u00f6\u0001\u0000\u0000\u00004\u00fa\u0001\u0000\u0000\u00006\u0100"+
 		"\u0001\u0000\u0000\u00008\u0104\u0001\u0000\u0000\u0000:\u0106\u0001\u0000"+
 		"\u0000\u0000<\u010d\u0001\u0000\u0000\u0000>B\u0003\u0002\u0001\u0000"+
-		"?A\u0005%\u0000\u0000@?\u0001\u0000\u0000\u0000AD\u0001\u0000\u0000\u0000"+
+		"?A\u0005)\u0000\u0000@?\u0001\u0000\u0000\u0000AD\u0001\u0000\u0000\u0000"+
 		"B@\u0001\u0000\u0000\u0000BC\u0001\u0000\u0000\u0000CE\u0001\u0000\u0000"+
-		"\u0000DB\u0001\u0000\u0000\u0000EI\u0005\u0001\u0000\u0000FH\u0005%\u0000"+
+		"\u0000DB\u0001\u0000\u0000\u0000EI\u0005\u0001\u0000\u0000FH\u0005)\u0000"+
 		"\u0000GF\u0001\u0000\u0000\u0000HK\u0001\u0000\u0000\u0000IG\u0001\u0000"+
 		"\u0000\u0000IJ\u0001\u0000\u0000\u0000JL\u0001\u0000\u0000\u0000KI\u0001"+
-		"\u0000\u0000\u0000LP\u0003\u0006\u0003\u0000MO\u0005%\u0000\u0000NM\u0001"+
+		"\u0000\u0000\u0000LP\u0003\u0006\u0003\u0000MO\u0005)\u0000\u0000NM\u0001"+
 		"\u0000\u0000\u0000OR\u0001\u0000\u0000\u0000PN\u0001\u0000\u0000\u0000"+
 		"PQ\u0001\u0000\u0000\u0000QS\u0001\u0000\u0000\u0000RP\u0001\u0000\u0000"+
-		"\u0000SW\u0005\u0001\u0000\u0000TV\u0005%\u0000\u0000UT\u0001\u0000\u0000"+
+		"\u0000SW\u0005\u0001\u0000\u0000TV\u0005)\u0000\u0000UT\u0001\u0000\u0000"+
 		"\u0000VY\u0001\u0000\u0000\u0000WU\u0001\u0000\u0000\u0000WX\u0001\u0000"+
 		"\u0000\u0000XZ\u0001\u0000\u0000\u0000YW\u0001\u0000\u0000\u0000Z[\u0003"+
 		"\n\u0005\u0000[\\\u0005\u0000\u0000\u0001\\\u0001\u0001\u0000\u0000\u0000"+
-		"]a\u0003\u0004\u0002\u0000^`\u0005%\u0000\u0000_^\u0001\u0000\u0000\u0000"+
+		"]a\u0003\u0004\u0002\u0000^`\u0005)\u0000\u0000_^\u0001\u0000\u0000\u0000"+
 		"`c\u0001\u0000\u0000\u0000a_\u0001\u0000\u0000\u0000ab\u0001\u0000\u0000"+
 		"\u0000be\u0001\u0000\u0000\u0000ca\u0001\u0000\u0000\u0000d]\u0001\u0000"+
 		"\u0000\u0000eh\u0001\u0000\u0000\u0000fd\u0001\u0000\u0000\u0000fg\u0001"+
 		"\u0000\u0000\u0000g\u0003\u0001\u0000\u0000\u0000hf\u0001\u0000\u0000"+
 		"\u0000ij\u0005\u0019\u0000\u0000jk\u0005\u0002\u0000\u0000kl\u0003,\u0016"+
-		"\u0000l\u0005\u0001\u0000\u0000\u0000mq\u0003\b\u0004\u0000np\u0005%\u0000"+
+		"\u0000l\u0005\u0001\u0000\u0000\u0000mq\u0003\b\u0004\u0000np\u0005)\u0000"+
 		"\u0000on\u0001\u0000\u0000\u0000ps\u0001\u0000\u0000\u0000qo\u0001\u0000"+
 		"\u0000\u0000qr\u0001\u0000\u0000\u0000ru\u0001\u0000\u0000\u0000sq\u0001"+
 		"\u0000\u0000\u0000tm\u0001\u0000\u0000\u0000ux\u0001\u0000\u0000\u0000"+
@@ -2223,7 +2225,7 @@ public class DrawScriptParser extends Parser {
 		"\u0002\u0000\u0000{\u007f\u00038\u001c\u0000|\u007f\u00034\u001a\u0000"+
 		"}\u007f\u00036\u001b\u0000~{\u0001\u0000\u0000\u0000~|\u0001\u0000\u0000"+
 		"\u0000~}\u0001\u0000\u0000\u0000\u007f\t\u0001\u0000\u0000\u0000\u0080"+
-		"\u0084\u0003\f\u0006\u0000\u0081\u0083\u0005%\u0000\u0000\u0082\u0081"+
+		"\u0084\u0003\f\u0006\u0000\u0081\u0083\u0005)\u0000\u0000\u0082\u0081"+
 		"\u0001\u0000\u0000\u0000\u0083\u0086\u0001\u0000\u0000\u0000\u0084\u0082"+
 		"\u0001\u0000\u0000\u0000\u0084\u0085\u0001\u0000\u0000\u0000\u0085\u0088"+
 		"\u0001\u0000\u0000\u0000\u0086\u0084\u0001\u0000\u0000\u0000\u0087\u0080"+
@@ -2239,14 +2241,14 @@ public class DrawScriptParser extends Parser {
 		"\u0096\u0003:\u001d\u0000\u0096\u0097\u0005\u0005\u0000\u0000\u0097\u0098"+
 		"\u0003\n\u0005\u0000\u0098\u0099\u0005\u0006\u0000\u0000\u0099\u000f\u0001"+
 		"\u0000\u0000\u0000\u009a\u009b\u0005\u0007\u0000\u0000\u009b\u009c\u0003"+
-		"2\u0019\u0000\u009c\u00a0\u0005\u0005\u0000\u0000\u009d\u009f\u0005%\u0000"+
+		"2\u0019\u0000\u009c\u00a0\u0005\u0005\u0000\u0000\u009d\u009f\u0005)\u0000"+
 		"\u0000\u009e\u009d\u0001\u0000\u0000\u0000\u009f\u00a2\u0001\u0000\u0000"+
 		"\u0000\u00a0\u009e\u0001\u0000\u0000\u0000\u00a0\u00a1\u0001\u0000\u0000"+
 		"\u0000\u00a1\u00a3\u0001\u0000\u0000\u0000\u00a2\u00a0\u0001\u0000\u0000"+
 		"\u0000\u00a3\u00a4\u0003\n\u0005\u0000\u00a4\u00a6\u0005\u0006\u0000\u0000"+
 		"\u00a5\u00a7\u0003\u0012\t\u0000\u00a6\u00a5\u0001\u0000\u0000\u0000\u00a6"+
 		"\u00a7\u0001\u0000\u0000\u0000\u00a7\u0011\u0001\u0000\u0000\u0000\u00a8"+
-		"\u00ac\u0005\b\u0000\u0000\u00a9\u00ab\u0005%\u0000\u0000\u00aa\u00a9"+
+		"\u00ac\u0005\b\u0000\u0000\u00a9\u00ab\u0005)\u0000\u0000\u00aa\u00a9"+
 		"\u0001\u0000\u0000\u0000\u00ab\u00ae\u0001\u0000\u0000\u0000\u00ac\u00aa"+
 		"\u0001\u0000\u0000\u0000\u00ac\u00ad\u0001\u0000\u0000\u0000\u00ad\u00af"+
 		"\u0001\u0000\u0000\u0000\u00ae\u00ac\u0001\u0000\u0000\u0000\u00af\u00b0"+
@@ -2270,11 +2272,11 @@ public class DrawScriptParser extends Parser {
 		"\u0000\u00d0\u00d1\u0005\u000f\u0000\u0000\u00d1\u00d2\u0005\u0019\u0000"+
 		"\u0000\u00d2#\u0001\u0000\u0000\u0000\u00d3\u00d4\u0003&\u0013\u0000\u00d4"+
 		"%\u0001\u0000\u0000\u0000\u00d5\u00da\u0003(\u0014\u0000\u00d6\u00d7\u0005"+
-		"\u0016\u0000\u0000\u00d7\u00d9\u0003(\u0014\u0000\u00d8\u00d6\u0001\u0000"+
+		"\u0015\u0000\u0000\u00d7\u00d9\u0003(\u0014\u0000\u00d8\u00d6\u0001\u0000"+
 		"\u0000\u0000\u00d9\u00dc\u0001\u0000\u0000\u0000\u00da\u00d8\u0001\u0000"+
 		"\u0000\u0000\u00da\u00db\u0001\u0000\u0000\u0000\u00db\'\u0001\u0000\u0000"+
 		"\u0000\u00dc\u00da\u0001\u0000\u0000\u0000\u00dd\u00e2\u0003*\u0015\u0000"+
-		"\u00de\u00df\u0005\u0017\u0000\u0000\u00df\u00e1\u0003*\u0015\u0000\u00e0"+
+		"\u00de\u00df\u0005\u0016\u0000\u0000\u00df\u00e1\u0003*\u0015\u0000\u00e0"+
 		"\u00de\u0001\u0000\u0000\u0000\u00e1\u00e4\u0001\u0000\u0000\u0000\u00e2"+
 		"\u00e0\u0001\u0000\u0000\u0000\u00e2\u00e3\u0001\u0000\u0000\u0000\u00e3"+
 		")\u0001\u0000\u0000\u0000\u00e4\u00e2\u0001\u0000\u0000\u0000\u00e5\u00ed"+
@@ -2288,19 +2290,19 @@ public class DrawScriptParser extends Parser {
 		"\u00ef\u0001\u0000\u0000\u0000\u00f1-\u0001\u0000\u0000\u0000\u00f2\u00f3"+
 		"\u0005\u0019\u0000\u0000\u00f3/\u0001\u0000\u0000\u0000\u00f4\u00f5\u0005"+
 		"\u0018\u0000\u0000\u00f51\u0001\u0000\u0000\u0000\u00f6\u00f7\u0003$\u0012"+
-		"\u0000\u00f7\u00f8\u0005\u0012\u0000\u0000\u00f8\u00f9\u0003$\u0012\u0000"+
+		"\u0000\u00f7\u00f8\u0005\u0017\u0000\u0000\u00f8\u00f9\u0003$\u0012\u0000"+
 		"\u00f93\u0001\u0000\u0000\u0000\u00fa\u00fb\u0005\u0010\u0000\u0000\u00fb"+
-		"\u00fc\u0003$\u0012\u0000\u00fc\u00fd\u0005\u0013\u0000\u0000\u00fd\u00fe"+
+		"\u00fc\u0003$\u0012\u0000\u00fc\u00fd\u0005\u0012\u0000\u0000\u00fd\u00fe"+
 		"\u0003$\u0012\u0000\u00fe\u00ff\u0005\u0011\u0000\u0000\u00ff5\u0001\u0000"+
-		"\u0000\u0000\u0100\u0101\u0003$\u0012\u0000\u0101\u0102\u0005\u0014\u0000"+
+		"\u0000\u0000\u0100\u0101\u0003$\u0012\u0000\u0101\u0102\u0005\u0013\u0000"+
 		"\u0000\u0102\u0103\u0003$\u0012\u0000\u01037\u0001\u0000\u0000\u0000\u0104"+
 		"\u0105\u0003$\u0012\u0000\u01059\u0001\u0000\u0000\u0000\u0106\u0107\u0005"+
-		"\u001b\u0000\u0000\u0107\u0108\u0003$\u0012\u0000\u0108\u0109\u0005\u0013"+
+		"\u001b\u0000\u0000\u0107\u0108\u0003$\u0012\u0000\u0108\u0109\u0005\u0012"+
 		"\u0000\u0000\u0109\u010a\u0003$\u0012\u0000\u010a\u010b\u0007\u0000\u0000"+
 		"\u0000\u010b;\u0001\u0000\u0000\u0000\u010c\u010e\u0005\u001a\u0000\u0000"+
 		"\u010d\u010c\u0001\u0000\u0000\u0000\u010d\u010e\u0001\u0000\u0000\u0000"+
-		"\u010e\u010f\u0001\u0000\u0000\u0000\u010f\u0110\u0005\u0015\u0000\u0000"+
-		"\u0110\u0111\u0005\u001a\u0000\u0000\u0111\u0113\u0005\u0015\u0000\u0000"+
+		"\u010e\u010f\u0001\u0000\u0000\u0000\u010f\u0110\u0005\u0014\u0000\u0000"+
+		"\u0110\u0111\u0005\u001a\u0000\u0000\u0111\u0113\u0005\u0014\u0000\u0000"+
 		"\u0112\u0114\u0005\u001a\u0000\u0000\u0113\u0112\u0001\u0000\u0000\u0000"+
 		"\u0113\u0114\u0001\u0000\u0000\u0000\u0114=\u0001\u0000\u0000\u0000\u0016"+
 		"BIPWafqv~\u0084\u0089\u0090\u00a0\u00a6\u00ac\u00b7\u00da\u00e2\u00ec"+

@@ -138,11 +138,17 @@ class DrawScriptInterpreter(private val script: Script) {
                 else throw IllegalArgumentException("Não é possível avaliar esta constante (é cor)")
             }
             is BinaryExpression -> operation(evaluate(exp.left), exp.operator, evaluate(exp.right))
-            is Bool -> if (evaluate(exp.left) == evaluate(exp.right)) 1 else 0
+            is Bool -> if(comparison(exp.left, exp.logicOperator, exp.right)) 1 else 0
             is Variable -> initializedVars[exp.varId]!!
             else -> throw IllegalArgumentException("Expressão não válida $exp")
         }
 
+    private fun comparison(left: Expression, oper: LogicOperator, right: Expression) : Boolean = when(oper) {
+        LogicOperator.EQUAL -> evaluate(left) == evaluate(right)
+        LogicOperator.DIF -> evaluate(left) != evaluate(right)
+        LogicOperator.LESS -> evaluate(left) < evaluate(right)
+        LogicOperator.GREATER -> evaluate(left) > evaluate(right)
+    }
     private fun operation(left: Int, oper: Operator, right: Int): Int = when (oper) {
         Operator.PLUS -> left + right
         Operator.MINUS -> left - right

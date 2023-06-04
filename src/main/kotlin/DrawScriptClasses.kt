@@ -321,9 +321,9 @@ data class Variable(val varId: String) : Expression {
     }
 }
 
-data class Bool(val left: Expression, val right: Expression) : Expression {
+data class Bool(val left: Expression, val logicOperator: LogicOperator, val right: Expression) : Expression {
     override fun toString(): String {
-        return "$left = $right"
+        return "$left $logicOperator $right"
     }
 }
 
@@ -338,6 +338,9 @@ data class BinaryExpression(val left: Expression, val operator: Operator, val ri
 
 enum class Operator {
     PLUS, MINUS, TIMES, DIVISION, MOD;
+}
+enum class LogicOperator {
+    EQUAL, DIF, LESS, GREATER
 }
 
 sealed interface ExpressionData : Expression, Data

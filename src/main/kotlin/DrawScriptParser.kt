@@ -64,15 +64,11 @@ fun ExpressionAddContext.toAst() : Expression {
     return expressionMult(0).toAst()
 }
 fun List<ExpressionMultContext>.toAst(oper: List<TerminalNode>) : Expression {
-    when(size) {
-        1 -> return this[0].toAst()
+    return when(size) {
+        1 -> this[0].toAst()
         else -> {
             val operador = getOperatorFor(oper[0].text)
-            return when (operador) {
-                Operator.PLUS -> BinaryExpression(this[0].toAst(), operador, this.subList(1, size).toAst(oper.subList(1, oper.size)))
-                Operator.MINUS -> BinaryExpression(this[0].toAst(), operador, this.subList(1, size).toAst(oper.subList(1, oper.size)))
-                else -> throw IllegalArgumentException("Expressão desconhecida $this")
-            }
+            BinaryExpression(this[0].toAst(), operador, this.subList(1, size).toAst(oper.subList(1, oper.size)))
         }
     }
 }
@@ -80,17 +76,20 @@ fun List<ExpressionMultContext>.toAst(oper: List<TerminalNode>) : Expression {
 
 fun ExpressionMultContext.toAst() : Expression {
     if (OPERATORMULT(0) != null) {
-        val operador = getOperatorFor(OPERATORMULT(0).text)
-        return when (operador) {
-            Operator.TIMES -> BinaryExpression(expressionAtom(0).toAst(), Operator.TIMES, expressionAtom(1).toAst())
-            Operator.DIVISION -> BinaryExpression(expressionAtom(0).toAst(), Operator.DIVISION, expressionAtom(1).toAst())
-            Operator.MOD -> BinaryExpression(expressionAtom(0).toAst(), Operator.MOD, expressionAtom(1).toAst())
-            else -> throw IllegalArgumentException("Expressão desconhecida ${this.text}")
-        }
+        return expressionAtom().toAst(OPERATORMULT())
     }
     return expressionAtom(0).toAst()
 }
 
+fun List<ExpressionAtomContext>.toAst(oper: List<TerminalNode>) : Expression {
+    return when(size) {
+        1 -> this[0].toAst()
+        else -> {
+            val operador = getOperatorFor(oper[0].text)
+            BinaryExpression(this[0].toAst(), operador, this.subList(1, size).toAst(oper.subList(1, oper.size)))
+        }
+    }
+}
 
 fun ExpressionAtomContext.toAst() : Expression = when {
     expressionData() != null -> expressionData().toAst()

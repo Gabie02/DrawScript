@@ -7,7 +7,7 @@
 - Diogo Carvalho, nº 98358
 
 ### Diagrama de classes
-
+![img.png](diagramaDeClasses.png)
 
 ---
 ## Estrutura do ficheiro

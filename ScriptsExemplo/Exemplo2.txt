@@ -19,12 +19,9 @@ fill WHITE
 circle (OFFSET, OFFSET) DISTANCE
 circle (DISTANCE * 2 + OFFSET, OFFSET) DISTANCE
 fill BLUE
-circle (OFFSET + 15, OFFSET + OFFSET/2) DISTANCE/2
-circle (DISTANCE * 2 + OFFSET + OFFSET/2, OFFSET + 15) DISTANCE/2
+circle (OFFSET + OFFSET/2, OFFSET + OFFSET/2) DISTANCE/2
+circle (DISTANCE * 2 + OFFSET + OFFSET/2, OFFSET + OFFSET/2) DISTANCE/2
 fill RED
 elipse (OFFSET + DISTANCE * 2 - 5, DISTANCE * 4 - 5) 10 ~ 15
 fill PURPLE
-// Fazer uma linha com 5 de grossura
-for i in [0, 5[ {
-    line (OFFSET, OFFSET + LINEY + i) (OFFSET + LINEY, OFFSET + LINEY + i)
-}
+rectangle (OFFSET, OFFSET + LINEY) LINEY ~ 5

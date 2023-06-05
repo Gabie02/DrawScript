@@ -38,7 +38,7 @@ data class ConstError(val constId: String) : ScriptError {
 data class ConstTypeError(val constId: String) : ScriptError {
 
     override fun toString(): String {
-        return "Type of constant $constId is different from the expected"
+        return "Type of constant $constId is different from expected"
     }
 }
 
@@ -89,7 +89,6 @@ data class Script(
 
         } else if (expressionBackground.exp !is Color) {
             errors.add(TypeError(Data::class, Color::class))
-            TODO()
         }
 
         //Verificar se a dimension não tem uma expressão inválida

@@ -11,11 +11,11 @@ class DrawScriptSkeleton(private val instructions: List<Triple<Color, Figure, Bo
     override fun paintComponent(graphics: Graphics) {
         val g = graphics as Graphics2D
         instructions.forEach { inst ->
-            val c = inst.first
-            val s = inst.second
+            val color = inst.first
+            val shape = inst.second
             val isBorder = inst.third
-            g.color = java.awt.Color(c.r, c.g, c.b)
-            paintShape(g, s, isBorder)
+            g.color = java.awt.Color(color.r, color.g, color.b)
+            paintShape(g, shape, isBorder)
         }
     }
 
@@ -63,11 +63,11 @@ class DrawScriptSkeleton(private val instructions: List<Triple<Color, Figure, Bo
 
 
 fun main() {
-    val testFileName = "ScriptsExemplo/Exemplo2.txt"
+    val testFileName = "ScriptsExemplo/Exemplo1.txt"
     val lexer = DrawScriptLexer(CharStreams.fromFileName(testFileName))
     val parser = DrawScriptParser(CommonTokenStream(lexer))
     val scriptObj = parser.script().toAst()
-    println(scriptObj)
+
     val interp = DrawScriptInterpreter(scriptObj)
     val paintInstructions = interp.run()
 
